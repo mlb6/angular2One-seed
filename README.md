@@ -8,7 +8,7 @@ This seed is using :
 
 ## Annotations
 ### @InjectNgOne('serviceName')
-``javascript
+```javascript
 class Hello{
   logger:Object;
   
