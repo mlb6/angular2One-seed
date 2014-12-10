@@ -1,0 +1,157 @@
+import {List, ListWrapper} from 'angular2/facade/collection';
+import * as InjectionHelper from './injectionHelper';
+
+const CONTROLLER_SUFFIX = 'Controller';
+const isLoggingDebug = false;
+
+
+/**
+ * A generic class parser that helps us to retrieve information from a class in order to use it
+ * when registering the class.
+ * Here are the information :
+ * - type : type of angular provider : 'directive','controller','factory','service'
+ * - name : the name we need to use for registering it to angular. (ex: HelloCmp is a directive that has selector 'hello-app', its angular name will be helloApp)
+ * - injectedDependencies : the dependencies that needs to be injected.
+ * - componentServices : resolved as dependencies //TODO I don't understand yet the need to have it in @Component.
+ * - otherDependencies : resolved as dependencies (Used to instantiate directive used in templates)
+ * - factory : the factory function to use when registering to angular. (not prepared for injection)
+ */
+export class ClassParser {
+  type:string;
+  name:string;
+  injectedDependencies:List;
+  componentServices:List;
+  otherDependencies:List;
+  factory:Function;
+
+  constructor(type:string, name:string, componentServices:List, otherDependencies:List,  factory:Function){
+    this.type=type;
+    this.name=name;
+    this.injectedDependencies = InjectionHelper.retrieveParametersInjections(factory, name);
+    this.componentServices=componentServices || ListWrapper.create();
+    this.otherDependencies=otherDependencies || ListWrapper.create();
+    this.factory=factory;
+  }
+
+  /**
+   * Returns all the dependencies (injected or not) of this class.
+   *
+   * @returns {Set<string>} the dependencies of this class.
+   */
+  getAllDependencies():Set{
+    if(isLoggingDebug) {
+      console.debug('{method:"getAllDependencies",\tngName:"' + this.name + '",\n'
+      + 'this.injectedDependencies:[' + InjectionHelper.injectionsToNames(this.injectedDependencies) + '],\n'
+      + 'this.componentServices:[' + InjectionHelper.injectionsToNames(this.componentServices) + '],\n'
+      + 'this.otherDependencies:[' + InjectionHelper.injectionsToNames(this.otherDependencies) + ']\n}');
+    }
+    return new Set([].concat(this.injectedDependencies, this.componentServices, this.otherDependencies));
+  }
+
+  /**
+   * Returns the injected class in the following pseudo format :
+   * [ 'injection1', 'injection2' , function factory(){} ]
+   *
+   * @returns {Array<any>} the injected class.
+   */
+  getInjectedFactory():Array{
+    return InjectionHelper.getInjectedClass(this.factory, this.name,this.injectedDependencies)
+  }
+}
+
+
+/**
+ * A parser for class that are not directives. They can either be a controller or a service.
+ * Controller needs to be named with 'Controller' suffix. //TODO We may need to change this to use an annotation. It may not work with minification.
+ */
+export class ServiceParser extends ClassParser {
+  constructor(clazz:Function){
+    super(ServiceParser.isController(clazz) ? 'controller' :'factory', clazz.name , ListWrapper.create(), ListWrapper.create(), clazz);
+  }
+
+  /**
+   * Test if the given class is a controller.
+   *
+   * @param clazz the class to check if it is a controller.
+   * @returns {boolean} true if it is a controller. Otherwise false.
+   */
+  static isController(clazz:Function):boolean{
+    var suffixLength = CONTROLLER_SUFFIX.length;
+    var suffix = clazz.name.substr(clazz.name.length-suffixLength, suffixLength);
+    return suffix == CONTROLLER_SUFFIX;
+  }
+}
+
+/**
+ * An empty parser used to avoid hard stop of the application when an exception is thrown.
+ */
+export class EmptyParser extends ClassParser{
+  constructor(clazz:Function){
+    super("", "__empty_parser__", ListWrapper.create(), ListWrapper.create(), function(){});
+  }
+}
+
+
+/**
+ * An annotation parser class which allows you to extract particular annotation type
+ * of a class/function.
+ */
+export class ClassAnnotationsParser {
+
+
+  /**
+   * Create a {ClassAnnotationsParser}.
+   *
+   * @param constructor the actual class or function
+   */
+  constructor(constructor) {
+    this.constructor = constructor;
+  }
+
+  /**
+   * Returns the first occurrence of the given type of annotation.
+   *
+   * @param annotationConstructor the annotation to find
+   * @returns {Object}
+   */
+  getFirst(annotationConstructor:Function):Object {
+    return ClassAnnotationsParser.__getFirst(this.getAllAnnotations(), annotationConstructor);
+  }
+
+  //private method:  can be used to create a getLast().
+  static __getFirst(annotations:Array, annotationConstructor:Function):Object {
+    for (let annotation of annotations) {
+      if (annotation instanceof annotationConstructor) {
+        return annotation;
+      }
+    }
+    return null;
+  }
+
+
+  /**
+   * Returns all occurrences of the given type of annotation.
+   *
+   * @param annotationConstructor the annotation to find
+   * @returns {Array} annotations
+   */
+  getAnnotations(annotationConstructor:Function) {
+    var result = [];
+    for (let annotation of this.getAllAnnotations()) {
+      if (annotation instanceof annotationConstructor) {
+        result.push(annotation);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Returns all annotations of the class.
+   *
+   * @returns {Array} all annotations of the class.
+   */
+  getAllAnnotations():Array{
+    return this.constructor.annotations || [];
+  }
+
+}

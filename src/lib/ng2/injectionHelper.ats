@@ -1,0 +1,184 @@
+import {InjectNgOne, Inject, NgElement, NgScope, NgOne} from './types'
+import {List, ListWrapper} from 'angular2/facade/collection';
+import {isPresent} from 'angular2/facade/lang';
+
+export const NG1_ELEMENT = '$element'; // ng1 string to access $element
+export const NG1_SCOPE = '$scope'; // ng1 string to inject $scope
+
+const isLoggingDebug = false;
+
+/**
+ * Prepare an array of injection ($inject) and the instance of the class.
+ *
+ * @param clazz the class to inject
+ * @param ngName the name of the angular service/directive/controller
+ * @param parametersInjections The list of injection (a list of Class)
+ * @param isDirective a flag used to insert special behaviour of directives.
+ * @returns {Array} an array of injection string followed by the instance of the class.
+ */
+export function getInjectedClass(clazz:Function, ngName:string, parametersInjections:List, isDirective:boolean=false):Array{
+
+  // An injectedClassArray is composed by
+  // (1) - an array of strings with services names to inject.
+  // (2) - a function that will create an instance of The class with injected services.
+  var parametersInjectionNames = injectionsToNames(parametersInjections);
+  var injectedClassArray = new Array().concat(parametersInjectionNames);
+
+  if(isLoggingDebug){
+    console.debug('{method:"getInjectedClass",\tclassName:"'+clazz.name +'",\tngName:"'+ ngName+'",\tparametersInjectionNames:['+parametersInjectionNames+']}');
+  }
+
+  // (2)
+  injectedClassArray.push((...deps) => {
+    var args = deps.slice(0, parametersInjections.length);
+
+    if(isDirective){
+      // If it is a Directive, we may need to wrap $element into NgElement
+      args = wrapNgElement(parametersInjections, args);
+
+      // We also need to bind the 'this' of the class to $scope.
+      var $scope = retrieveInjectedScope(args, parametersInjectionNames);
+      return bindThisWithScope(new clazz(...args), $scope);
+    }else{
+      return new clazz(...args);
+    }
+  });
+  return injectedClassArray;
+}
+
+/**
+ * Converts an array of injection classes, into list of injection string.
+ *
+ * @param parametersInjections  array of injection classes
+ * @returns {List} a list of injection string
+ */
+function injectionsToNames(parametersInjections):List{
+  var names = ListWrapper.create();
+  parametersInjections.forEach(injection => names.push(getInjectionName(injection)));
+  return names;
+}
+
+/**
+ * Retrieve injection string from type (class/function).
+ *
+ * @param injection injection type
+ * @returns {string} injection string
+ */
+function getInjectionName(injection:Function):string{
+  return isPresent(injection.ng1Name) ? injection.ng1Name : injection.name;
+}
+
+/**
+ * When $element is in the list of injection string,
+ * its value received in arguments has to be wrapped into a NgElement.
+ *
+ * (Note that reverse operation is achieved by getInjectionName : When NgElement is
+ * in the list injection type, it is replaced by $element in the list of injection string.)
+ *
+ * @param injections list of injections type
+ * @param args argument values received after injection
+ * @returns {Array} argument values altered for $element.
+ */
+function wrapNgElement(injections:List, args:Array):Array{
+  var elementIndex = injections.indexOf(NgElement);
+  if(elementIndex>=0){
+    var jElement=args[elementIndex];
+    args[elementIndex]=new NgElement(jElement[0]);
+  }
+  return args;
+}
+
+/**
+ * Retrieve the $scope value in the given arguments
+ *
+ * @param args argument values received after injection
+ * @param injectionNames list of injections string
+ * @returns {Object} the $scope value or an empty object {} if not found.
+ */
+function retrieveInjectedScope(args:Array, injectionNames:List):Object{
+  var scopeIndex = injectionNames.indexOf(NgScope.ng1Name);
+  return (scopeIndex>=0 && args.length === injectionNames.length) ? args[scopeIndex] : {};
+}
+
+/**
+ * In ng2 this of the class correspond to the variable $scope of ng1.
+ * This is also the case for controllers for ng1.3.x, but not in the case of directive controller (our case here).
+ * Because $scope is created before the instance we need to copy the class instance into the scope.
+ *
+ * @param classInstance class instance.
+ * @param $scope the $scope of the directive
+ * @returns {Object} the class instance.
+ */
+function bindThisWithScope(classInstance:Object, $scope:Object){
+  // TODO: Need to find a better way than a copy of class instance...
+  for(var key in classInstance){
+    $scope[key]=classInstance[key];
+  }
+  return classInstance;
+}
+
+/**
+ * Retrieves parameters injections based on annotations and/or types.
+ *
+ * @param clazz the class to use
+ * @param ngName the name of the angular service we are trying parse.
+ * @returns {List} a list of type or (for ng1) a function returning service name.
+ */
+export function retrieveParametersInjections(clazz:Function, ngName:string):List{
+  var injection = ListWrapper.create();
+  if(clazz.parameters!==undefined){
+    for(let typeDescriptors of clazz.parameters){
+      let injectDescriptor = getInjectionDescriptor(typeDescriptors);
+      injection.push(injectDescriptor);
+    }
+  }
+  if(isLoggingDebug) {
+    console.debug('{method:"retrieveParametersInjections",\tclazz.name:"'+clazz.name+'",\tngName:"'+ngName
+    +'",\tclazz.length:'+clazz.length+',\tinjection.length:'+injection.length+'}');
+  }
+  if (injection.length < clazz.length) {
+    throw new Error('No type descriptors to guess injection of constructor arguments (' + clazz.name + '). ' +
+    'Use "p:Type", "@Inject(Type) p", or "@InjectNgOne(\'serviceName\') p" ');
+  }
+  return injection;
+}
+
+
+/**
+ * For each of the constructor parameters we try to find what injection it needs based different type of injection:
+ * - InjectNgOne('serviceName') : To use when injecting ng1 service into your ng2 like class.
+ * - Inject(Type) : simple injection. (It is not the real DI system of ng2!!!)
+ * - p:Type : simple injection
+ *
+ * @param injectionDescriptors array of injection descriptor (annotation or type)
+ * @returns {Function} type or (for ng1) a function returning service name.
+ */
+function getInjectionDescriptor(injectionDescriptors:Array):Function{
+  for(var descriptor of injectionDescriptors){
+    if(descriptor instanceof InjectNgOne){
+      // When using this declaration : constructor(@InjectNgOne('serviceName') p)
+      return createNgOneDescriptor(descriptor.token);
+    }else if(descriptor instanceof Inject){
+      // When using this declaration : constructor(@Inject(Type) p)
+      return descriptor.token;
+    }else if(descriptor instanceof Function){
+      // When using this declaration : constructor(p:Type)
+      return descriptor;
+    }
+  }
+}
+
+
+/**
+ * Creates a function which help us to use an array of same type of object.
+ *
+ * @param name service name to inject.
+ * @returns {Function} a function returning service name for ng1 injection.
+ */
+export function createNgOneDescriptor(name:string):Function{
+  // creates an anonymous class extending NgOne.
+  var f = class extends NgOne {};
+  f.ng1Name=name;
+  return f;
+}
+

@@ -1,0 +1,65 @@
+{
+  "traceur": {
+    "dev" : {
+      "modules": "amd",
+      "script": false,
+      "types": true,
+      "typeAssertions": true,
+      "typeAssertionModule": "assert",
+      "annotations": true,
+      "sourceMaps": "file",
+      "memberVariables":true,
+      "debug": true,
+      "outputLanguage": "es5"
+    },
+    "prod_es5" : {
+      "modules": "amd",
+      "script": false,
+      "types": true,
+      "typeAssertions": false,
+      "annotations": true,
+      "sourceMaps": "file",
+      "memberVariables": true,
+      "outputLanguage": "es5"
+    },
+    "prod_es6" : {
+      "modules": "amd",
+      "script": false,
+      "types": true,
+      "typeAssertions": false,
+      "annotations": true,
+      "sourceMaps": "file",
+      "memberVariables": true,
+      "outputLanguage": "es6"
+    }
+  },
+  "scripts" : {
+    "atsScripts" : ["src/**/*.ats"],
+    "jsScripts" : ["src/**/*.js"],
+    "atsTests" : ["test/unit/**/*.ats"],
+    "jsTests" : ["test/unit/**/*.js"],
+    "scriptMaps" : ["src/**/*.map", "test/unit/**/*.map"]
+  },
+  "modules" : {
+    "configFile" : "src/require.config.js",
+    "include" : {
+      "dev": ["angular"],
+      "prod": ["angular"]
+    }
+  },
+  "path" :{
+    "src" :  "src",
+    "build" :  "build",
+    "scripts" : "scripts",
+    "dist" : {
+      "images":  "dist/assets/images",
+      "fonts" : "dist/fonts",
+      "root": "dist"
+    },
+    "test" : {
+      "root" : "test",
+      "e2e" : "test/e2e",
+      "unit" : "test/unit"
+    }
+  }
+}

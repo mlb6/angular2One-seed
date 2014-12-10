@@ -1,0 +1,56 @@
+import 'angular';
+import 'hammer'
+import 'angular-material';
+import 'angular-animate';
+import 'angular-aria';
+import 'angular-mocks';
+import 'router';
+import 'router-directive';
+import {BootstrapService} from 'core/core';
+import {bootstrap as ng2Bootstrap} from 'ng2/ng2One'
+
+
+//TODO: Use lazy loading for controllers : https://github.com/angular/router/issues/22
+import AppController from 'components/app/AppController';
+import HelloToasterController from 'components/hello-toaster/HelloToasterController';
+import {HelloCmp, HelloWorldController} from 'components/hello-world/HelloWorldController';
+
+
+
+
+
+var appModule = angular.module('myApp', [ 'ngFuturisticRouter', 'ngMaterial'])
+
+  .config(['componentLoaderProvider', function (componentLoaderProvider) {
+    componentLoaderProvider.setTemplateMapping(function (name) {
+      var dashName = dashCase(name);
+      return '/components/' + dashName + '/' + dashName + '.html';
+    });
+
+    componentLoaderProvider.setCtrlNameMapping(function (name) {
+      var dashName = dashCase(name);
+      return  name[0].toUpperCase() +  name.substr(1) + 'Controller';
+    });
+  }]);
+
+
+
+var bootstrapService = new BootstrapService(appModule);
+bootstrapService.bootstrappers.push(ng2Bootstrap);
+
+
+bootstrapService.bootstrap(AppController);
+bootstrapService.bootstrap(HelloToasterController);
+bootstrapService.bootstrap(HelloWorldController);
+bootstrapService.bootstrap(HelloCmp);
+
+
+function dashCase(str) {
+  return str.replace(/([A-Z])/g, function ($1) {
+    return '-' + $1.toLowerCase();
+  });
+}
+
+
+return angular.bootstrap(document, ['myApp']);
+

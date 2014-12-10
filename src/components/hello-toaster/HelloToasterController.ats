@@ -1,0 +1,27 @@
+import {InjectNgOne} from 'ng2/ng2';
+
+
+export default class HelloToasterController {
+  log;
+  toast;
+  firstName:string;
+
+  constructor(@InjectNgOne('$log') $log, @InjectNgOne('$mdToast') $mdToast){
+    this.log = $log;
+    this.toast = $mdToast;
+    this.firstName='';
+  }
+
+
+  sayHello(){
+    let toast = this.toast;
+    this.log.debug('Hello '+this.firstName);
+    toast.show(
+      toast.simple()
+        .content('Hello '+this.firstName)
+        .position('top right')
+        .hideDelay(2000)
+    );
+  }
+
+}

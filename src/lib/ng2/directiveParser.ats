@@ -1,0 +1,127 @@
+import {isPresent} from 'angular2/facade/lang';
+import {List, ListWrapper} from 'angular2/facade/collection';
+import {CssSelector} from 'angular2/core/compiler/selector'
+import * as InjectionHelper from './injectionHelper';
+import {InjectNgOne, NgElement, Decorator, Component, Template} from './types';
+import {ClassParser} from './classParser';
+
+
+/**
+ * An abstract class to implement parser for classes that are assigned by a selector (Directives).
+ */
+class DirectiveParser extends ClassParser{
+
+  /**
+   * Construct a parser for directive.
+   *
+   * Here is the specific behaviour:
+   * - angular name is deduced by the CSS Selector
+   * - directive restrict type is deduced by the CSS Selector
+   * - a directive function factory is returned using the given class as a controller.
+   * - $scope is explicitly added in order to be able bind it controller 'this'.
+   * - NgElement needs to be removed from the dependencies because it is not an ng2 service that needs to be resolved.
+   *
+   * @param clazz the class that will be used as controller.
+   * @param selectorPattern the CSS selector used to create directive.
+   * @param componentServices only used as dependencies.
+   * @param otherDependencies directives dependencies (the one included in templates)
+   * @param direciveOptions the ng1 directive options that are specific based on the annotation (Component, Decorator, Template)
+   */
+  constructor(clazz:Function, selectorPattern:string, componentServices:List, otherDependencies:List, direciveOptions:Object){
+    var selector = new DirectiveSelector(selectorPattern);
+    var runtimeInjection = InjectionHelper.retrieveParametersInjections(clazz, selector.directiveName);
+    var dependencies= otherDependencies.concat(runtimeInjection);
+
+    // remove NgElement ($element) from dependencies to avoid its resolution
+    dependencies = ListWrapper.filter(dependencies, dep => dep !== NgElement);
+
+    // adding $scope for to be able to assign 'this' to $scope.
+    runtimeInjection.push(InjectionHelper.createNgOneDescriptor('$scope'));
+
+    super('directive', selector.directiveName, componentServices, dependencies, function directiveFactory(){
+      return angular.extend({
+        restrict: selector.directiveRestrict,
+        controller :  InjectionHelper.getInjectedClass(clazz, selector.directiveName, runtimeInjection, true)
+      },direciveOptions);
+    });
+  }
+}
+
+/**
+ * A Parser for class with @Component annotation. It deals with templates.
+ */
+export class ComponentParser extends DirectiveParser {
+
+  constructor(clazz:Function, annotation:Component){
+    var template = annotation.template;
+    var directiveDependencies = template.directives || ListWrapper.create();
+    var directiveOptions = {};
+
+    if(isPresent(template.inline)){
+      directiveOptions.template =template.inline;
+    }
+    //TODO manage other options
+
+    super(clazz, annotation.selector , annotation.componentServices, directiveDependencies, directiveOptions);
+  }
+}
+
+/**
+ * A parser for class with @Template annotation.
+ */
+export class TemplateParser extends DirectiveParser {
+  // TODO not implemented. Need to find documentation.
+}
+
+/**
+ * A parser for class with @Decorator annotation.
+ */
+export class DecoratorParser extends DirectiveParser {
+  constructor(clazz:Function, annotation:Decorator){
+    super(clazz, annotation.selector , ListWrapper.create(), ListWrapper.create(), {});
+  }
+}
+
+/**
+ * Directive selector parse the CSS Selector to retrieve directives options. (name and restrict)
+ */
+export class DirectiveSelector {
+
+  selector:CssSelector;
+  directiveName:string;
+  directiveRestrict:string;
+
+  /**
+   * Constructor for directiveSelector.
+   *
+   * @param cssPattern CSS pattern (same format as the one in NG 2).
+   */
+  constructor(cssPattern:string){
+    this.selector = CssSelector.parse(cssPattern);
+
+    if(this.selector.attrs.length>0){
+      this.directiveName=camelCase(this.selector.attrs[0]);
+      this.directiveRestrict='A';
+    }else if(this.selector.classNames.length>0){
+      this.directiveName=camelCase(this.classNames.attrs[0]);
+      this.directiveRestrict='C';
+    }else if(isPresent(this.selector.element)){
+      this.directiveName=camelCase(this.selector.element);
+      this.directiveRestrict='E';
+    }else{
+      throw new SyntaxError('This CSS Selector "'+cssPattern+'" is not compatible with angular 1.3.x directives');
+    }
+  }
+}
+
+/**
+ * Convert selector name to camelCase.
+ *
+ * @param str the selector name with dash
+ * @returns {string} string with dash removed and first letter in upper-case.
+ */
+function camelCase(str){
+  return str.replace(/(-[a-z])/g, function ($1) {
+    return $1.toUpperCase().substr(1);
+  });
+}

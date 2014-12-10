@@ -1,0 +1,7 @@
+build
+bower_components
+dist
+gulp
+node_modules
+test
+.sass-cache

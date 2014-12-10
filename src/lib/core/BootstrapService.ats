@@ -1,0 +1,17 @@
+
+
+export class BootstrapService {
+
+  appModule;
+  bootstrappers:Array;
+
+  constructor(appModule){
+    this.appModule=appModule;
+    this.bootstrappers=new Array();
+  }
+
+  bootstrap(classType){
+    this.bootstrappers.forEach(bootstrap => bootstrap(this.appModule, classType));
+  }
+}
+
