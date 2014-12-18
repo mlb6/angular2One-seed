@@ -1,8 +1,8 @@
 {
-  "name": "angular-retail-store",
+  "name": "angular2One-seed",
   "private": true,
   "version": "0.0.0",
-  "description": "A Retail Store Prototype for Angular",
+  "description": "Seed for angularjs 1.x project written in atScript with angular 2 annotations",
   "dependencies": {
     "requirejs": "^2.1.15",
     "router": "git://github.com/angular/router#master",
@@ -69,7 +69,7 @@
     "wiredep": "^1.8.5"
   },
   "scripts": {
-    "test": "karma start --single-run"
+    "test": "karma start test/karma.conf.js --single-run"
   },
   "engines": {
     "node": ">=0.10.0"

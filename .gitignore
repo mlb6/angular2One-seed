@@ -3,3 +3,5 @@ bower_components
 dist
 build
 .sass-cache
+
+.idea/libraries/Generated_files.xml
