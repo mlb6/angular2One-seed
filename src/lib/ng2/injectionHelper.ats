@@ -129,7 +129,9 @@ export function retrieveParametersInjections(clazz:Function, ngName:string):List
   if(clazz.parameters!==undefined){
     for(let typeDescriptors of clazz.parameters){
       let injectDescriptor = getInjectionDescriptor(typeDescriptors);
-      injection.push(injectDescriptor);
+      if(injectDescriptor!=undefined){
+        injection.push(injectDescriptor);
+      }
     }
   }
   if(isLoggingDebug) {
