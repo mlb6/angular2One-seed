@@ -1,0 +1,23 @@
+language: node_js
+
+node_js:
+  - 0.10
+
+env:
+  global:
+    - BROWSER_PROVIDER_READY_FILE=/tmp/sauce-connect-ready
+    - LOGS_DIR=/tmp/angular2One-seed-build/logs
+    - SAUCE_USERNAME=mlb6
+    - SAUCE_ACCESS_KEY=60a27dca-08ac-453e-8dec-f87890cb1885
+
+install:
+  - mkdir -p $LOGS_DIR
+  - ./scripts/sauce_connect_setup.sh
+  - npm install
+  - bower install
+  - npm install -g gulp
+  - npm install -g karma-cli
+  - ./scripts/wait_for_browser_provider.sh
+
+script:
+  - ./scripts/test_on_sauce.sh
