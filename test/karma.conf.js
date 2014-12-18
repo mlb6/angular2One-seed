@@ -1,33 +1,43 @@
 // Karma configuration
 
-var PRJ_CONFIG  = require('./../config');
-var path = require('path');
+var pathConfig  = require('./../config').path;
+
+var sauceConfig = require('./karma.sauce.conf');
+var travisConfig = require('./karma.travis.conf');
+
+var basePath = '../build/src';
+var prjRootPath = '../..';
+var nodeModulesPath = prjRootPath + '/node_modules';
+var buildSrcPath = prjRootPath +'/'+ pathConfig.build +'/'+ pathConfig.src ;
+var buildTestPath = prjRootPath +'/'+ pathConfig.build +'/'+ pathConfig.test.unit ;
+var srcPath = prjRootPath  +'/'+ pathConfig.src ;
+var testPath = prjRootPath  +'/'+ pathConfig.test.unit ;
 
 
-var traceurOptions = PRJ_CONFIG.traceur.dev;
 
 module.exports = function(config) {
 
-  //var isWebstorm = /karma-intellij/.test(process.argv[1]);
   var files = [
-      {pattern:'../../node_modules/traceur/bin/traceur-runtime.js', included: false, watched:false},
-      {pattern:'../../node_modules/rtts-assert/dist/amd/assert.js', included: false, watched:false},
-      {pattern: '**/*.js', included: false},
-      {pattern: '../'+PRJ_CONFIG.path.test.unit + '/**/*.js', included: false}
-    ];
+    // requirejs config to load in tests (some part of it will be override in main.js)
+    {pattern: srcPath + '/require.config.js', included: true},
 
-
-  files = [
     // The entry point that dynamically imports all the tests.
-    {pattern: '../../'+PRJ_CONFIG.path.src+'/require.config.js', included: true},
-    {pattern: '../../'+PRJ_CONFIG.path.test.unit +'/main.js', included: true}
-  ].concat(files);
+    {pattern: testPath +'/main.js', included: true, watched:false},
+
+    // node modules libraries
+    {pattern: nodeModulesPath+'/traceur/bin/traceur-runtime.js', included: false, watched:false},
+    {pattern: nodeModulesPath+'/rtts-assert/dist/amd/assert.js', included: false, watched:false},
+
+    // transpiled sources
+    {pattern: buildSrcPath+'/**/*.js', included: false},
+    {pattern: buildTestPath + '/**/*.js', included: false}
+  ];
 
 
-  config.set({
+  var options = {
     frameworks: ['jasmine', 'requirejs', 'sourcemaps'],
 
-    basePath:'../build/src',
+    basePath: basePath,
 
     files: files,
 
@@ -45,7 +55,15 @@ module.exports = function(config) {
     //logLevel:config.LOG_DEBUG,
 
     browsers: ['Chrome']
-  });
+  };
 
+  // Apply sauce specific options
+  if (process.argv.indexOf('--sauce') > -1) {
+    sauceConfig(options);
+    travisConfig(options);
+  }
+
+  config.set(options);
   config.plugins.push(require('./karma_sourcemaps'));
+
 };
