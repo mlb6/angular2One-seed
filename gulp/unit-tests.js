@@ -8,7 +8,9 @@ var $ = require('gulp-load-plugins')({
 
 
 var prjRootPath = __dirname+'/..';
-var testPathCfg  = require('./../config').path.test;
+var pathCfg  = require('./../config').path;
+var testPathCfg  = pathCfg.test;
+var buildSrc = pathCfg.build + '/' +pathCfg.src;
 
 
 gulp.task('test',  function(done) {
@@ -27,6 +29,7 @@ gulp.task('test-single-run',  function(done) {
 });
 
 gulp.task('publish-coverage', function(){
-  gulp.src(testPathCfg.coverage+'/lcov.info')
-    .pipe($.coveralls());
+  gulp.src(testPathCfg.coverage+'/**/lcov.info')
+    .pipe($.debug())
+    .pipe($.coveralls({filepath:buildSrc}));
 })
