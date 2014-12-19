@@ -7,7 +7,6 @@ function killServer {
 }
 
 gulp build-dev
-ls -lR build
 gulp test-single-run
 gulp publish-coverage
 

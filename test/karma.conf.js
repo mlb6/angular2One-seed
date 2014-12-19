@@ -52,7 +52,7 @@ module.exports = function(config) {
       '**/*.js': ['coverage']
     },
 
-    logLevel:config.LOG_DEBUG,
+    //logLevel:config.LOG_DEBUG,
 
     browsers: ['Chrome']
   };

@@ -1,0 +1,143 @@
+import * as InjectionHelper from 'ng2/injectionHelper';
+import {InjectNgOne, Inject, NgElement, NgScope} from 'ng2/types';
+
+
+
+describe('InjectionHelper.retrieveParametersInjections', function(){
+  it('should be able to retrieve injection based on types',function(){
+    class Injection {}
+    class OtherInjection {}
+    class TestClass{
+      constructor(test:Injection){ }
+    }
+    var result = InjectionHelper.retrieveParametersInjections(TestClass,'test');
+    expect(result).toBeDefined();
+    expect(result[0]).toBe(Injection);
+    expect(result[0]).not.toBe(OtherInjection);
+  });
+
+  it('should be able to retrieve injection based @Inject annotation',function(){
+    class Injection {}
+    class OtherInjection {}
+    class TestClass{
+      constructor(@Inject(Injection) test){  }
+    }
+    var result = InjectionHelper.retrieveParametersInjections(TestClass,'test');
+    expect(result).toBeDefined();
+    expect(result[0]).toBe(Injection);
+    expect(result[0]).not.toBe(OtherInjection);
+  });
+
+  it('should be able to retrieve injection based @InjectNgOne annotation',function(){
+    class TestClass{
+      constructor(@InjectNgOne('Injection') test){  }
+    }
+
+    var result = InjectionHelper.retrieveParametersInjections(TestClass,'test');
+    expect(result).toBeDefined();
+    expect(result[0].ng1Name).toBe('Injection');
+    expect(result[0].ng1Name).not.toBe('');
+  });
+
+
+  it('should throw an error if some injection descriptors are missing.',function(){
+    class TestClass{
+      constructor(@InjectNgOne('Injection') test, hello){  }
+    }
+
+    expect(function(){
+      InjectionHelper.retrieveParametersInjections(TestClass,'test');
+    }).toThrow();
+  });
+
+});
+
+
+describe('InjectionHelper.getInjectedClass', function(){
+
+
+  it('should wrap $element into NgElement when injecting directive',function(){
+    class TestClass{
+      element:NgElement;
+      constructor(element:NgElement){
+        this.element=element;
+      }
+    }
+
+
+    var injections = InjectionHelper.retrieveParametersInjections(TestClass, 'testElement');
+    var result = InjectionHelper.getInjectedClass(TestClass, 'testElement', injections, true);
+
+    expect(result[0]).toBe('$element');
+    expect(result[1]).toEqual(jasmine.any(Function));
+    var dummyElement = document.createElement('DIV');
+    var instance = result[1]([dummyElement]);
+    expect(instance.element).toBeDefined();
+    expect(instance.element.domElement).toBe(dummyElement);
+  });
+
+
+  it('should bind "this" of the class to $scope when injected as a directive',function(){
+
+    class TestClass{
+      property:string;
+
+      constructor(){
+        this.property='init';
+      }
+
+      method(){
+        return 'test'+this.property;
+      }
+    }
+
+
+    var injections = [NgScope];
+    var result = InjectionHelper.getInjectedClass(TestClass, 'testScope', injections, true);
+
+    expect(result[0]).toBe('$scope');
+    expect(result[1]).toEqual(jasmine.any(Function));
+    var dummyScope = {  };
+
+    result[1](dummyScope);
+    dummyScope.property='prop';
+
+    expect(dummyScope.method).toBeDefined();
+    expect(dummyScope.method()).toBe('testprop');
+    expect(dummyScope.method()).not.toBe('testinit');
+  });
+
+
+
+  it('should return an array of injection string followed by the instance of the class',function(){
+
+    class TypeInjection {}
+    class AtInjection {}
+    class OtherInjection {}
+    class TestClass{
+      constructor(typeInjection:TypeInjection, @Inject(AtInjection) atInjection, @InjectNgOne('ng1Injection') ng1Injection){ }
+    }
+
+
+    var injections = InjectionHelper.retrieveParametersInjections(TestClass, 'test');
+    var result = InjectionHelper.getInjectedClass(TestClass, 'test', injections, false);
+
+    expect(result[0]).toBe('TypeInjection');
+    expect(result[1]).toBe('AtInjection');
+    expect(result[2]).toBe('ng1Injection');
+    expect(result[3]).toEqual(jasmine.any(Function));
+
+  });
+
+});
+
+
+
+describe('InjectionHelper.createNgOneDescriptor', function(){
+  it('should create function with an ng1Name property',function(){
+    expect(InjectionHelper.createNgOneDescriptor('$log')).toBeDefined();
+    expect(InjectionHelper.createNgOneDescriptor('$log').ng1Name).toBe('$log');
+  });
+});
+
+
