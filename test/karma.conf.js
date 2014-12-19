@@ -45,7 +45,7 @@ module.exports = function(config) {
 
     coverageReporter: {
       type:'lcov',
-      dir: '../reports/coverage'
+      dir: prjRootPath +'/'+ pathConfig.test.coverage
     },
 
     preprocessors: {

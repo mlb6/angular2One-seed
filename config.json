@@ -59,7 +59,8 @@
     "test" : {
       "root" : "test",
       "e2e" : "test/e2e",
-      "unit" : "test/unit"
+      "unit" : "test/unit",
+      "coverage" : "build/reports/coverage"
     }
   },
   "sauce" : {

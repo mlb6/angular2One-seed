@@ -2,49 +2,29 @@
 
 var gulp = require('gulp');
 var karma = require('karma').server;
+var $ = require('gulp-load-plugins')({
+  pattern: ['gulp-*']
+});
 
 
-var PRJ_CONFIG  = require('./../config');
+var prjRootPath = __dirname+'/..';
+var testPathCfg  = require('./../config').path.test;
 
 
 gulp.task('test',  function(done) {
-
   karma.start({
-    configFile : __dirname+'/../'+PRJ_CONFIG.path.test.root+"/karma.conf.js"
+    configFile : prjRootPath+'/'+testPathCfg.root+"/karma.conf.js"
   }, done);
-
-
-  /*var bowerDeps = wiredep({
-    directory: 'bower_components',
-    dependencies: true,
-    devDependencies: true
-  });*/
-
-  //var testFiles = bowerDeps.js.concat([
-    // PRJ_CONFIG.path.build.src+'/{app,lib}/**/*.js',
-    //PRJ_CONFIG.path.test.unit+'/**/*.js'
-  //]);
-
-  var  files = [];
-
-  /*PRJ_CONFIG.scripts.libraries.forEach(function (library){
-    if(!library.afterApp) {
-      files.push(library.path);
-    }
-  });*/
-/*
-  var scripts = PRJ_CONFIG.scripts;
-  files = files.concat('src/require.config.js', scripts.jsTests, scripts.scriptMaps);
-console.log(files);
-
-
-  return gulp.src(files)
-    .pipe($.karma({
-      configFile: PRJ_CONFIG.path.test.root+"/karma.conf.js",
-      action: "run"
-    }))
-    .on('error', function(err) {
-      // Make sure failed tests cause gulp to exit non-zero
-      throw err;
-    });*/
 });
+
+gulp.task('test-single-run',  function(done) {
+  karma.start({
+    configFile : prjRootPath+'/'+testPathCfg.root+"/karma.conf.js",
+    singleRun : true
+  }, done);
+});
+
+gulp.task('publish-coverage', function(){
+  gulp.src(testPathCfg.coverage+'/lcov.info')
+    .pipe($.coveralls());
+})
