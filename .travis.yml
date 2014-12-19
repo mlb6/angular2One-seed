@@ -8,7 +8,7 @@ env:
     - BROWSER_PROVIDER_READY_FILE=/tmp/sauce-connect-ready
     - LOGS_DIR=/tmp/angular2One-seed-build/logs
     - SAUCE_USERNAME=mlb6
-    - SAUCE_ACCESS_KEY=a00d08c6b0f7-6edb-eb64-e6a9-dc872a13
+    - SAUCE_ACCESS_KEY=61000c088427-ff5b-8b04-3219-277afc63
 
 before_install:
   - npm install -g npm@latest
