@@ -1,4 +1,7 @@
 # Seed for angularjs 1.x project written in atScript with angular 2 annotations [WIP]
+
+[![Build Status](https://travis-ci.org/mlb6/angular2One-seed.svg?branch=master)](https://travis-ci.org/mlb6/angular2One-seed) [![Sauce Test Status](https://saucelabs.com/browser-matrix/mlb6.svg)](https://saucelabs.com/u/mlb6) [![Dependency Status](https://david-dm.org/mlb6/angular2One-seed.svg)](https://david-dm.org/mlb6/angular2One-seed) [![devDependency Status](https://david-dm.org/mlb6/angular2One-seed/dev-status.svg)](https://david-dm.org/mlb6/angular2One-seed#info=devDependencies)
+
 This seed is using :
  - requireJS for AMD modules
  - the angular new router
