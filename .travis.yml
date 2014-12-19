@@ -14,7 +14,6 @@ before_install:
   - npm install -g npm@latest
 
 install:
-  - ls -l /tmp
   - mkdir -p $LOGS_DIR
   - ./scripts/sauce_connect_setup.sh
   - npm install
@@ -22,6 +21,7 @@ install:
   - npm install -g gulp
   - npm install -g karma-cli
   - bower install
+  - cat $LOGS_DIR/sauce-connect.stderr
   - ./scripts/wait_for_browser_provider.sh
 
 script:
