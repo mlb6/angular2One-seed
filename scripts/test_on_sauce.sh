@@ -6,14 +6,14 @@ function killServer {
   kill $serverPid
 }
 
-./node_modules/.bin/gulp build-dev
-#./node_modules/.bin/gulp serve &
-serverPid=$!
+gulp build-dev
 
-trap killServer EXIT
+#gulp serve &
+#serverPid=$!
+#trap killServer EXIT
 
 SAUCE_ACCESS_KEY=`echo $SAUCE_ACCESS_KEY | rev`
 
 karma start test/karma.conf.js --sauce &
 #./node_modules/.bin/protractor protractor.travis.conf.js &
-wait %2
+wait %1
