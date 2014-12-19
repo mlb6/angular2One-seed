@@ -64,6 +64,8 @@
     }
   },
   "sauce" : {
+    "accessKey": "a00d08c6b0f7-6edb-eb64-e6a9-dc872a13",
+    "userName":"mlb6",
     "testName": "Angular2One Seed",
     "launchers":{
       "SL_Chrome": {

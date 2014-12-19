@@ -58,7 +58,7 @@ module.exports = function(config) {
   };
 
   // Apply sauce specific options
-  if (process.argv.indexOf('--sauce') > -1) {
+  if (process.argv.indexOf('--sauce') > -1 || process.argv.indexOf('test-sauce') > -1 ) {
     sauceConfig(options);
     travisConfig(options);
   }

@@ -7,15 +7,12 @@ function killServer {
 }
 
 gulp build-dev
-gulp test-single-run
-gulp publish-coverage
 
 #gulp serve &
 #serverPid=$!
 #trap killServer EXIT
 
-#SAUCE_ACCESS_KEY=`echo $SAUCE_ACCESS_KEY | rev`
-
-#karma start test/karma.conf.js --sauce &
+gulp test-sauce &
 #./node_modules/.bin/protractor protractor.travis.conf.js &
-#wait %1
+wait %1
+gulp publish-coverage
