@@ -17,9 +17,11 @@ gulp.task('test',  function(done) {
   }, done);
 });
 
+// For travis
 gulp.task('test-single-run',  function(done) {
   karma.start({
     configFile : prjRootPath+'/'+testPathCfg.root+"/karma.conf.js",
+    browsers : ['Firefox'],
     singleRun : true
   }, done);
 });
