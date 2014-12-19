@@ -65,12 +65,22 @@ gulp.task('build-dev-styles',  function () {
 });
 
 gulp.task('build-dev-scripts', ['build-dev-transpile', 'build-dev-other-scripts']);
+gulp.task('build-dev-transpile', ['build-dev-transpile-src', 'build-dev-transpile-test']);
 
-gulp.task('build-dev-transpile', function () {
-  return gulp.src(atScripts, {base:PRJ_CONFIG.path.src})
+
+gulp.task('build-dev-transpile-src', function () {
+  return gulp.src(scripts.atsScripts, {base:PRJ_CONFIG.path.src})
     .pipe($.rename({extname: '.js'}))
     .pipe($.traceur(PRJ_CONFIG.traceur.dev))
     .pipe(gulp.dest(buildSrc));
+});
+gulp.task('build-dev-transpile-test', function () {
+  console.log(scripts.atsTests);
+  return gulp.src(scripts.atsTests, {base:PRJ_CONFIG.path.test.unit})
+    .pipe($.debug())
+    .pipe($.rename({extname: '.js'}))
+    .pipe($.traceur(PRJ_CONFIG.traceur.dev))
+    .pipe(gulp.dest(PRJ_CONFIG.path.build + '/' +PRJ_CONFIG.path.test.unit));
 });
 
 
