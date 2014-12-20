@@ -12,15 +12,9 @@ gulp build-dev
 #serverPid=$!
 #trap killServer EXIT
 
-gulp test-sauce &
-saucePid=$!
+gulp test-sauce
+
 #./node_modules/.bin/protractor protractor.travis.conf.js &
 
-while [ ! -f /tmp/waiting.debug ]; do
-  echo "waiting for $saucePid"
-  ps -efl | grep gulp
-  sleep 5
-done
-wait %1
-touch /tmp/waiting.debug
+#wait %1
 gulp publish-coverage
