@@ -43,6 +43,5 @@ gulp.task('test-single-run',  function(done) {
 
 gulp.task('publish-coverage', function(){
   gulp.src(testPathCfg.coverage+'/**/lcov.info')
-    .pipe($.debug())
     .pipe($.coveralls({filepath:buildSrc}));
 })
