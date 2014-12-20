@@ -29,7 +29,13 @@ gulp.task('test-sauce',  function(done){
   karma.start({
     configFile : configFile,
     singleRun : true
-  }, done);
+  },function(){
+    done();
+    // Process does not end certainly while using travis config.
+    // Certainly because of this issue : https://github.com/gulpjs/gulp/issues/167
+    // TODO: Change this when issue is closed.
+    process.exit(0);
+  } );
 });
 
 

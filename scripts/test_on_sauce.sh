@@ -12,9 +12,12 @@ gulp build-dev
 #serverPid=$!
 #trap killServer EXIT
 
-gulp test-sauce
+gulp test-sauce &
 
-#./node_modules/.bin/protractor protractor.travis.conf.js &
+#protractor protractor.travis.conf.js &
 
-#wait %1
+wait %1 # test-sauce
 gulp publish-coverage
+
+#wait %2 # protractor
+exit 0
