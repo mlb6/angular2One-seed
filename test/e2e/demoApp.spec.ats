@@ -1,0 +1,25 @@
+import {HelloMaterialPage} from './helloMaterialPage';
+import {AppPage} from './appPage';
+
+describe('The demo app', function () {
+
+  beforeEach(function () {
+    browser.get('http://localhost:3000/index.html');
+  });
+
+  it('should say hello',function(){
+    var helloPage = new HelloMaterialPage();
+    helloPage.setFirstName('Martin');
+    helloPage.submit();
+
+    expect(helloPage.getToast().isPresent()).toBe(true);
+  });
+
+  it('should route to angular 2 hello world page when clicking on link', function(){
+    var appPage = new AppPage();
+    appPage.helloWorldLink.click();
+
+    expect(browser.getCurrentUrl()).toBe("http://localhost:3000/index.html#/hello-world");
+  })
+
+});

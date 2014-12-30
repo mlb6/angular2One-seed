@@ -1,0 +1,22 @@
+export class HelloMaterialPage {
+  firstNameInput;
+  submitButton;
+
+  constructor(){
+    this.firstNameInput=element(by.css('[label="FirstName"] input'));
+    this.submitButton=element(by.css('button.btn-say-hello'));
+  }
+
+  submit(){
+    this.submitButton.click();
+  }
+
+  setFirstName(firstname){
+    this.firstNameInput.sendKeys(firstname);
+  }
+
+  getToast(){
+    return element(by.css('md-toast'));
+  }
+
+}

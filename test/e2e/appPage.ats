@@ -1,0 +1,10 @@
+
+export class AppPage {
+  helloWorldLink;
+  helloToasterLink;
+
+  constructor(){
+    this.helloWorldLink=element(by.css('a[router-link="helloWorld"]'));
+    this.helloToasterLink=element(by.css('a[router-link="helloToaster"]'));
+  }
+}

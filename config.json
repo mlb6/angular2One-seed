@@ -12,6 +12,15 @@
       "debug": true,
       "outputLanguage": "es5"
     },
+    "dev_cjs" : {
+      "modules": "commonjs",
+      "script": false,
+      "types": true,
+      "annotations": true,
+      "sourceMaps": "file",
+      "memberVariables":true,
+      "outputLanguage": "es5"
+    },
     "prod_es5" : {
       "modules": "amd",
       "script": false,
@@ -36,9 +45,10 @@
   "scripts" : {
     "atsScripts" : ["src/**/*.ats"],
     "jsScripts" : ["src/**/*.js"],
-    "atsTests" : ["test/unit/**/*.ats"],
+    "unitTests" : ["test/unit/**/*.ats"],
     "jsTests" : ["test/unit/**/*.js"],
-    "scriptMaps" : ["src/**/*.map", "test/unit/**/*.map"]
+    "scriptMaps" : ["src/**/*.map", "test/unit/**/*.map"],
+    "e2eTests":["test/e2e/**/*.ats"]
   },
   "modules" : {
     "configFile" : "src/require.config.js",

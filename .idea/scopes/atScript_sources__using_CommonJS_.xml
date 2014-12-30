@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="atScript sources (using CommonJS)" pattern="file[angular2One-seed]:test/e2e*.ats" />
+</component>

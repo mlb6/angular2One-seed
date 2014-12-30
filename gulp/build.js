@@ -14,7 +14,8 @@ var modules = PRJ_CONFIG.modules;
 
 var scripts = PRJ_CONFIG.scripts;
 var appScripts =  [].concat( scripts.jsScripts, scripts.jsTests, scripts.scriptMaps);
-var atScripts = argv.file || [].concat(scripts.atsScripts, scripts.atsTests);
+var amdAtScripts = argv.file || [].concat(scripts.atsScripts, scripts.unitTests);
+var cjsAtScripts = argv.file || scripts.e2eTests;
 var allProdScripts = [].concat(scripts.atsScripts, scripts.jsScripts);
 
 function handleError(err) {
@@ -64,12 +65,19 @@ gulp.task('build-dev-styles',  function () {
     .pipe(gulp.dest(buildSrc))
 });
 
-gulp.task('build-dev-scripts', ['build-dev-transpile', 'build-dev-other-scripts']);
+gulp.task('build-dev-scripts', ['build-dev-transpile-amd', 'build-dev-transpile-cjs','build-dev-other-scripts']);
 
-gulp.task('build-dev-transpile', function () {
-  return gulp.src(atScripts, {base:PRJ_CONFIG.path.src})
+gulp.task('build-dev-transpile-amd', function () {
+  return gulp.src(amdAtScripts, {base:PRJ_CONFIG.path.src})
     .pipe($.rename({extname: '.js'}))
     .pipe($.traceur(PRJ_CONFIG.traceur.dev))
+    .pipe(gulp.dest(buildSrc));
+});
+
+gulp.task('build-dev-transpile-cjs', function () {
+  return gulp.src(cjsAtScripts, {base:PRJ_CONFIG.path.src})
+    .pipe($.rename({extname: '.js'}))
+    .pipe($.traceur(PRJ_CONFIG.traceur.dev_cjs))
     .pipe(gulp.dest(buildSrc));
 });
 

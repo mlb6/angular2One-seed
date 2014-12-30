@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectTasksOptions" suppressed-tasks="TypeScript">
     <TaskOptions isEnabled="true">
-      <option name="arguments" value="build-dev-transpile --color true --file $FilePathRelativeToProjectRoot$" />
+      <option name="arguments" value="build-dev-transpile-amd --color true --file $FilePathRelativeToProjectRoot$" />
       <option name="checkSyntaxErrors" value="false" />
       <option name="description" value="Compiles .ats files into .js files" />
       <option name="exitCodeBehavior" value="ERROR" />
@@ -22,7 +22,33 @@
       <option name="outputFromStdout" value="false" />
       <option name="passParentEnvs" value="true" />
       <option name="program" value="/usr/local/bin/gulp" />
-      <option name="scopeName" value="atScript sources" />
+      <option name="scopeName" value="atScript sources (using AMD)" />
+      <option name="trackOnlyRoot" value="false" />
+      <option name="workingDir" value="$ProjectFileDir$" />
+      <envs />
+    </TaskOptions>
+    <TaskOptions isEnabled="true">
+      <option name="arguments" value="build-dev-transpile-cjs --color true --file $FilePathRelativeToProjectRoot$" />
+      <option name="checkSyntaxErrors" value="false" />
+      <option name="description" value="Compiles .ats files into .js files" />
+      <option name="exitCodeBehavior" value="ERROR" />
+      <option name="fileExtension" value="*" />
+      <option name="immediateSync" value="true" />
+      <option name="name" value="atScript CommonJS" />
+      <option name="output" value="build/$FileRelativeDir$/$FileNameWithoutExtension$.js:build/$FileRelativeDir$/$FileNameWithoutExtension$.map" />
+      <option name="outputFilters">
+        <array>
+          <FilterInfo>
+            <option name="description" value="tsc error format" />
+            <option name="name" value="tsc" />
+            <option name="regExp" value="$FILE_PATH$\($LINE$,$COLUMN$\): $MESSAGE$$" />
+          </FilterInfo>
+        </array>
+      </option>
+      <option name="outputFromStdout" value="false" />
+      <option name="passParentEnvs" value="true" />
+      <option name="program" value="/usr/local/bin/gulp" />
+      <option name="scopeName" value="atScript sources (using CommonJS)" />
       <option name="trackOnlyRoot" value="false" />
       <option name="workingDir" value="$ProjectFileDir$" />
       <envs />

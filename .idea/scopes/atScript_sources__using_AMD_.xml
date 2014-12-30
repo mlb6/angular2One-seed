@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="atScript sources (using AMD)" pattern="file[angular2One-seed]:src*.ats/||file[angular2One-seed]:test/unit*.ats" />
+</component>
