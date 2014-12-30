@@ -6,10 +6,10 @@ var $ = require('gulp-load-plugins')({
   pattern: ['gulp-*']
 });
 
-var sauceCfg  = require('./../config').sauce;
+var sauceCfg  = require('./../../config').sauce;
 
-var prjRootPath = __dirname+'/..';
-var pathCfg  = require('./../config').path;
+var prjRootPath = __dirname+'/../..';
+var pathCfg  = require('./../../config').path;
 var testPathCfg  = pathCfg.test;
 var buildSrc = pathCfg.build + '/' +pathCfg.src;
 var configFile =  prjRootPath+'/'+testPathCfg.root+"/karma.conf.js";

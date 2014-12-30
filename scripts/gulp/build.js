@@ -7,7 +7,7 @@ var $ = require('gulp-load-plugins')({
   pattern: ['gulp-*', 'main-bower-files', 'uglify-save-license', 'del', 'amd-optimize','bower-requirejs']
 });
 
-var PRJ_CONFIG = require('./../config');
+var PRJ_CONFIG = require('./../../config');
 var buildSrc = PRJ_CONFIG.path.build + '/' +PRJ_CONFIG.path.src;
 
 var modules = PRJ_CONFIG.modules;
