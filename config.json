@@ -7,7 +7,6 @@
       "typeAssertions": true,
       "typeAssertionModule": "assert",
       "annotations": true,
-      "sourceMaps": "file",
       "memberVariables":true,
       "debug": true,
       "outputLanguage": "es5"
@@ -17,7 +16,6 @@
       "script": false,
       "types": true,
       "annotations": true,
-      "sourceMaps": "file",
       "memberVariables":true,
       "outputLanguage": "es5"
     },
@@ -27,7 +25,6 @@
       "types": true,
       "typeAssertions": false,
       "annotations": true,
-      "sourceMaps": "file",
       "memberVariables": true,
       "outputLanguage": "es5"
     },
@@ -37,7 +34,6 @@
       "types": true,
       "typeAssertions": false,
       "annotations": true,
-      "sourceMaps": "file",
       "memberVariables": true,
       "outputLanguage": "es6"
     }

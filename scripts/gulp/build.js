@@ -68,16 +68,20 @@ gulp.task('build-dev-styles',  function () {
 gulp.task('build-dev-scripts', ['build-dev-transpile-amd', 'build-dev-transpile-cjs','build-dev-other-scripts']);
 
 gulp.task('build-dev-transpile-amd', function () {
-  return gulp.src(amdAtScripts, {base:PRJ_CONFIG.path.src})
+  return gulp.src(amdAtScripts)
+    .pipe($.sourcemaps.init())
     .pipe($.rename({extname: '.js'}))
     .pipe($.traceur(PRJ_CONFIG.traceur.dev))
+    .pipe($.sourcemaps.write('.'))
     .pipe(gulp.dest(buildSrc));
 });
 
 gulp.task('build-dev-transpile-cjs', function () {
-  return gulp.src(cjsAtScripts, {base:PRJ_CONFIG.path.src})
+  return gulp.src(cjsAtScripts)
+    .pipe($.sourcemaps.init())
     .pipe($.rename({extname: '.js'}))
     .pipe($.traceur(PRJ_CONFIG.traceur.dev_cjs))
+    .pipe($.sourcemaps.write('.'))
     .pipe(gulp.dest(buildSrc));
 });
 
