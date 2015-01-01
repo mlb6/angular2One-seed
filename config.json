@@ -39,6 +39,7 @@
       "outputLanguage": "es6"
     }
   },
+
   "modules" : {
     "configFile" : "src/main/require.config.js",
     "include" : {
@@ -65,13 +66,17 @@
       "build" : "build",
       "buildMain" : "build/main",
       "buildUnit" : "build/test/unit",
-      "dist" : "dist",
-      "maps" : "maps",
+      "dist" : {
+        "base": "dist",
+        "images": "dist/assets/images",
+        "fonts" : "dist/fonts",
+        "rev": "dist/rev"
+      },
       "coverage" : "build/coverage"
     },
     "karmaConfig" : "src/test/karma.conf.js",
     "protractorConfig" : "src/test/protractor.conf.js",
-    "jshint" : ["src/main/**/*.js", "src/test/unit/**/*.js","scripts/gulp/*.js", "build/main/**/*.js"]
+    "jshint" : ["src/main/**/*.js", "src/test/unit/**/*.js","scripts/gulp/*.js"]
   },
 
   "sauce" : {
@@ -95,32 +100,6 @@
         "platform": "OS X 10.9",
         "version": "7"
       }
-    }
-  },
-
-  "scriptsOld" : {
-    "atsScripts" : ["src/**/*.ats"],
-    "jsScripts" : ["src/**/*.js"],
-    "unitTests" : ["test/unit/**/*.ats"],
-    "jsTests" : ["test/unit/**/*.js"],
-    "scriptMaps" : ["src/**/*.map", "test/unit/**/*.map"],
-    "e2eTests":["test/e2e/**/*.ats"]
-  },
-
-  "pathOld" :{
-    "src" :  "src",
-    "build" :  "build",
-    "scripts" : "scripts",
-    "dist" : {
-      "images":  "dist/assets/images",
-      "fonts" : "dist/fonts",
-      "root": "dist"
-    },
-    "test" : {
-      "root" : "test",
-      "e2e" : "test/e2e",
-      "unit" : "test/unit",
-      "coverage" : "build/reports/coverage"
     }
   }
 }

@@ -119,7 +119,7 @@ gulp.task("build-prod-app-es5", [ "build-require-config"],function () {
 
   //allProdScripts=allProdScripts.concat(getJSLibraries());
 
-  return gulp.src(pathCfg.appScripts, {"base":"."})
+  return gulp.src(pathCfg.src.appScripts, pathCfg.src.baseOpt)
     .pipe(atsFilter)
     .pipe($.rename({extname: ".js"}))
     .pipe($.traceur(traceurCfg.prodEs5))
@@ -138,10 +138,10 @@ gulp.task("build-prod-app-es5", [ "build-require-config"],function () {
     .pipe($.uglify({preserveComments: $.uglifySaveLicense}))
     .pipe($.rev())
     .pipe($.sourcemaps.write("."))
-    .pipe(gulp.dest(pathCfg.dist.root))
+    .pipe(gulp.dest(pathCfg.dest.dist.base))
     .pipe($.rev.manifest())
     .pipe($.rename({suffix: ".app-es5"}))
-    .pipe(gulp.dest(pathCfg.dist.root+"/rev"));
+    .pipe(gulp.dest(pathCfg.dest.dist.rev));
 });
 
 
@@ -201,7 +201,7 @@ gulp.task("build-prod-images", function () {
       progressive: true,
       interlaced: true
     })))
-    .pipe(gulp.dest(pathCfg.dist.images))
+    .pipe(gulp.dest(pathCfg.dest.dist.images))
     .pipe($.size());
 });
 
@@ -209,20 +209,20 @@ gulp.task("build-prod-fonts", function () {
   return gulp.src($.mainBowerFiles())
     .pipe($.filter("**/*.{eot,svg,ttf,woff}"))
     .pipe($.flatten())
-    .pipe(gulp.dest(pathCfg.dist.fonts))
+    .pipe(gulp.dest(pathCfg.dest.dist.fonts))
     .pipe($.size());
 });
 
 gulp.task("build-prod-misc", function () {
   return gulp.src("src/**/*.ico")
-    .pipe(gulp.dest(pathCfg.dist.root))
+    .pipe(gulp.dest(pathCfg.dest.dist.base))
     .pipe($.size());
 });
 
 
 
 gulp.task("clean", function (done) {
-  $.del([pathCfg.dest.build, pathCfg.dest.dist], done);
+  $.del([pathCfg.dest.build, pathCfg.dest.dist.base], done);
 });
 
 
@@ -264,10 +264,10 @@ function minify4Prod(stream, revSuffix){
     .pipe($.uglify({preserveComments: $.uglifySaveLicense}))
     .pipe($.rename({suffix:".min", dirname:"/scripts"}))
     .pipe($.sourcemaps.write("."))
-    .pipe(gulp.dest(pathCfg.dist.root))
+    .pipe(gulp.dest(pathCfg.dest.dist.base))
     .pipe($.rev.manifest())
     .pipe($.rename({suffix: revSuffix}))
-    .pipe(gulp.dest(pathCfg.dist.root+"/rev"));
+    .pipe(gulp.dest(pathCfg.dest.dist.rev));
 }
 
 
