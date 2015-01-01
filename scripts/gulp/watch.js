@@ -1,10 +1,10 @@
-'use strict';
+"use strict";
 
-var gulp = require('gulp');
+var gulp = require("gulp");
 
-gulp.task('watch-dev', ['build-dev'] ,function () {
-  gulp.watch('src/**/*.scss', ['build-dev-styles']);
-  gulp.watch('src/**/*.js', ['build-dev-scripts']);
+gulp.task("watch-dev", ["build-dev"] ,function () {
+  gulp.watch("src/main/**/*.scss", ["build-dev-styles"]);
+  gulp.watch("src/main/**/*.js", ["build-dev-scripts"]);
 });
 
 

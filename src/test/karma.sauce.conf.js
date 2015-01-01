@@ -1,7 +1,7 @@
 /*
  * karma.conf.js optionally load this
  */
-var sauceConfig = require('./../config').sauce;
+var sauceConfig = require('./../../config').sauce;
 
 module.exports = function(options) {
   if (!process.env.SAUCE_USERNAME || !process.env.SAUCE_ACCESS_KEY) {

@@ -17,14 +17,12 @@ import {HelloCmp, HelloWorldController} from 'components/hello-world/HelloWorldC
 
 
 
-
-
 var appModule = angular.module('myApp', [ 'ngFuturisticRouter', 'ngMaterial'])
 
   .config(['componentLoaderProvider', function (componentLoaderProvider) {
     componentLoaderProvider.setTemplateMapping(function (name) {
       var dashName = dashCase(name);
-      return '/components/' + dashName + '/' + dashName + '.html';
+      return './components/' + dashName + '/' + dashName + '.html';
     });
 
     componentLoaderProvider.setCtrlNameMapping(function (name) {

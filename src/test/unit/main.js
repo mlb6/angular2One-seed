@@ -1,12 +1,14 @@
+"use strict";
+
 // The entry point for unit tests.
 
 var TEST_REGEXP = /.spec\.js$/;
 
 function pathToModule(path) {
-  if(path.substr( 0,'/absolute'.length)=='/absolute'){
+  if(path.substr( 0,"/absolute".length)==="/absolute"){
     return path;
   }
-  return path.replace(/^\/base\//, '').replace(/\.js$/, '');
+  return path.replace(/^\/base\//, "").replace(/\.js$/, "");
 
 }
 
@@ -26,7 +28,7 @@ function getAllPathForSuffix(suffix){
       return path.indexOf(suffix, path.length - suffix.length) !== -1;
     })
     .map(function(path){
-      return path.replace(/\.js$/, '');
+      return path.replace(/\.js$/, "");
     });
 }
 
@@ -37,12 +39,12 @@ function getPathForSuffix(suffix){
 
 require.config({
   // Karma serves files under `/base`, which is the `basePath` from `karma-conf.js` file.
-  baseUrl: '/base',
+  baseUrl: "/base",
 
   //Override (from require.config.js) paths of libraries in node_modules, because the relative path does not work.
   paths: {
-    traceur: getPathForSuffix('node_modules/traceur/bin/traceur-runtime.js'),
-    assert: getPathForSuffix('node_modules/rtts-assert/dist/amd/assert.js')
+    traceur: getPathForSuffix("node_modules/traceur/bin/traceur-runtime.js"),
+    assert: getPathForSuffix("node_modules/rtts-assert/dist/amd/assert.js")
   },
 
   // Dynamically load all test files.

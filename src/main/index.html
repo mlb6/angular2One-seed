@@ -7,8 +7,8 @@
   <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
   <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
   <!-- build:css({build/src,src}) styles/libraries.css -->
-  <link rel="stylesheet" href="../bower_components/angular-material/angular-material.css" />
-  <link rel="stylesheet" href="../bower_components/angular-material/themes/grey-theme.css">
+  <link rel="stylesheet" href="../../bower_components/angular-material/angular-material.css" />
+  <link rel="stylesheet" href="../../bower_components/angular-material/themes/grey-theme.css">
   <!-- endbuild -->
 
 
@@ -19,29 +19,15 @@
 </head>
 <body>
 
-<!--
-<div data-ng-bind="router.title ? 'Router Title '+router.title : 'Router does not work !'">Not binded</div>
 
-<nav role="navigation">
-  <ul class="well nav nav-pills nav-stacked">
-    <li data-ng-repeat="row in router.navigation" data-ng-active="row.isActive">
-      <a  router-link href="{{row.href}}">{{row.title}}</a>
-    </li>
-  </ul>
-</nav>
-
-<div data-ng-if="router.isNavigating" layout="vertical" layout-sm="horizontal" layout-align="space-around">
-  <md-progress-circular mode="indeterminate"></md-progress-circular>
-</div>
--->
 <router-component component-name="app"></router-component>
 
 
 
 <!--start:development-only-->
-<script src="../node_modules/requirejs/require.js"></script>
+<script src="../../node_modules/requirejs/require.js"></script>
 <script type="text/javascript">
-  require(['require.config'], function(){
+  require(['require.config.js'], function(){
     require(['traceur'], function(){
       require(['app/main']);
     });

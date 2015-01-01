@@ -1,38 +1,37 @@
 // Karma configuration
 
-var pathConfig  = require('./../config').path;
+var pathCfg  = require('./../../config').path;
 
-var sauceConfig = require('./karma.sauce.conf');
-var travisConfig = require('./karma.travis.conf');
+var sauceConfig = require('./karma.sauce.conf.js');
+var travisConfig = require('./karma.travis.conf.js');
 
-var basePath = '../build/src';
+var basePath = '../../build/main';
 var prjRootPath = '../..';
 var nodeModulesPath = prjRootPath + '/node_modules';
-var buildSrcPath = prjRootPath +'/'+ pathConfig.build +'/'+ pathConfig.src ;
-var buildTestPath = prjRootPath +'/'+ pathConfig.build +'/'+ pathConfig.test.unit ;
-var srcPath = prjRootPath  +'/'+ pathConfig.src ;
-var testPath = prjRootPath  +'/'+ pathConfig.test.unit ;
+var buildMainPath = prjRootPath +'/'+ pathCfg.dest.buildMain;
+var buildTestPath = prjRootPath +'/'+ pathCfg.dest.buildUnit
+var mainPath = prjRootPath  +'/'+ pathCfg.src.main ;
+var unitTestPath = prjRootPath  +'/'+ pathCfg.src.unit ;
 
 
 
 module.exports = function(config) {
 
   var files = [
-    // requirejs config to load in tests (some part of it will be override in main.js)
-    {pattern: srcPath + '/require.config.js', included: true},
+    // requirejs config to load in tests (some part of it will be override in main.ats)
+    {pattern: mainPath + '/require.config.js', included: true},
 
     // The entry point that dynamically imports all the tests.
-    {pattern: testPath +'/main.js', included: true, watched:false},
+    {pattern: unitTestPath +'/main.js', included: true, watched:false},
 
     // node modules libraries
     {pattern: nodeModulesPath+'/traceur/bin/traceur-runtime.js', included: false, watched:false},
     {pattern: nodeModulesPath+'/rtts-assert/dist/amd/assert.js', included: false, watched:false},
 
     // transpiled sources
-    {pattern: buildSrcPath+'/**/*.js', included: false},
+    {pattern: buildMainPath+'/**/*.js', included: false},
     {pattern: buildTestPath + '/**/*.js', included: false}
   ];
-
 
   var options = {
     frameworks: ['jasmine', 'requirejs', 'sourcemaps'],
@@ -45,7 +44,7 @@ module.exports = function(config) {
 
     coverageReporter: {
       type:'lcov',
-      dir: prjRootPath +'/'+ pathConfig.test.coverage
+      dir: prjRootPath +'/'+ pathCfg.dest.coverage
     },
 
     preprocessors: {

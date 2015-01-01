@@ -1,30 +1,31 @@
-'use strict';
+"use strict";
 
-var gulp = require('gulp');
+var gulp = require("gulp");
 
-var $ = require('gulp-load-plugins')();
+var $ = require("gulp-load-plugins")();
+var browserSync = require("browser-sync");
 
-var browserSync = require('browser-sync');
-
-
-gulp.task('protractor', ['serve:dev:only', 'protractor:only']);
-gulp.task('protractor:prod', ['serve:prod:only', 'protractor:only']);
+var pathCfg  = require("./../../config").path;
 
 
-gulp.task('protractor:only', ['webdriver-update'], function (done) {
+gulp.task("protractor", ["serve:dev:only", "protractor:only"]);
+gulp.task("protractor:prod", ["serve:prod:only", "protractor:only"]);
+
+
+gulp.task("protractor:only", ["webdriver-update"], function (done) {
   var testFiles = [
-    'build/test/e2e/**/*.spec.js'
+    "build/test/e2e/**/*.spec.js"
   ];
 
   gulp.src(testFiles)
     .pipe($.protractor.protractor({
-      configFile: 'test/protractor.conf.js'
+      configFile: pathCfg.protractorConfig
     }))
-    .on('error', function (err) {
+    .on("error", function (err) {
       // Make sure failed tests cause gulp to exit non-zero
       throw err;
     })
-    .on('end', function () {
+    .on("end", function () {
       // Close browser sync server
       browserSync.exit();
       done();
@@ -33,6 +34,6 @@ gulp.task('protractor:only', ['webdriver-update'], function (done) {
 
 
 // Downloads the selenium webdriver
-gulp.task('webdriver-update', $.protractor.webdriver_update);
+gulp.task("webdriver-update", $.protractor.webdriver_update); // jshint ignore:line
 
-gulp.task('webdriver-standalone', $.protractor.webdriver_standalone);
+gulp.task("webdriver-standalone", $.protractor.webdriver_standalone); // jshint ignore:line
