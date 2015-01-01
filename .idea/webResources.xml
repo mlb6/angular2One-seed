@@ -5,9 +5,9 @@
       <entry url="file://$PROJECT_DIR$">
         <entryData>
           <resourceRoots>
-            <path value="file://$PROJECT_DIR$/src" />
             <path value="file://$PROJECT_DIR$/scripts" />
             <path value="file://$PROJECT_DIR$/gulp" />
+            <path value="file://$PROJECT_DIR$/src/main" />
           </resourceRoots>
         </entryData>
       </entry>
