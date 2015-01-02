@@ -40,7 +40,7 @@ gulp.task("test-sauce",  function(done){
 
 gulp.task("test-single-run",  function(done) {
   karma.start({
-    configFile : pathCfg.karmaConfig,
+    configFile : configFile,
     browsers : ["Firefox"],
     singleRun : true
   }, done);
@@ -48,5 +48,6 @@ gulp.task("test-single-run",  function(done) {
 
 gulp.task("publish-coverage", function(){
   gulp.src(pathCfg.dest.coverage+"/**/lcov.info")
+    .pipe($.debug())
     .pipe($.coveralls({filepath:pathCfg.dest.buildMain}));
 });

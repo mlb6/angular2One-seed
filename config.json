@@ -42,6 +42,7 @@
 
   "modules" : {
     "configFile" : "src/main/require.config.js",
+    "main" : "app/main",
     "include" : {
       "dev": ["angular"],
       "prod": ["angular"]
@@ -60,7 +61,11 @@
         "commonjs" : "src/test/e2e/**/*.ats"
       },
       "js" : "src/main/**/*.js",
-      "appScripts" : ["src/main/**/*.js","src/main/**/*.ats"]
+      "appScripts" : ["src/main/**/*.js","src/main/**/*.ats"],
+
+      "html" : "src/main/*.html",
+      "images":"src/main/assets/images/**/*",
+      "misc":"src/main/**/*.ico"
     },
     "dest" : {
       "build" : "build",

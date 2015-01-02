@@ -60,5 +60,5 @@ gulp.task("serve:dev:only", function () {
 });
 
 gulp.task("serve:prod:only", function () {
-  browserSyncInit(pathCfg.dest.dist, null, [], false);
+  browserSyncInit(pathCfg.dest.dist.base, null, [], false);
 });

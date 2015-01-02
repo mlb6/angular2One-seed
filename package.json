@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "assert": "angular/assert#dist",
-    "amd-optimize" : "^0.4.0",
+    "amd-optimize" : "git://github.com/mlb6/amd-optimize#master",
     "amdefine": ">=0.1.0",
     "bower-requirejs" : "^1.1.2",
     "browser-sync": "^1.8.2",
@@ -31,6 +31,7 @@
     "gulp-debug" : "^2.0.0",
     "gulp-filter": "^2.0.0",
     "gulp-flatten": "^0.0.4",
+    "gulp-if": "^1.2.3",
     "gulp-imagemin": "^2.0.0",
     "gulp-inject": "^1.1.1",
     "gulp-jshint": "^1.9.0",
