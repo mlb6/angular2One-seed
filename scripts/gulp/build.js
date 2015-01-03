@@ -4,7 +4,7 @@ var gulp = require("gulp");
 var argv = require("minimist")(process.argv.slice(2));
 
 var $ = require("gulp-load-plugins")({
-  pattern: ["gulp-*", "main-bower-files", "uglify-save-license", "del", "amd-optimize","bower-requirejs"]
+  pattern: ["gulp-*", "main-bower-files", "uglify-save-license", "del", "amd-optimize","bower-requirejs", "lazypipe", "event-stream"]
 });
 
 var config = require("./../../config");
@@ -19,10 +19,15 @@ if(argv.file){
   pathCfg.src.atScript.commonjs = argv.file;
 }
 
-function handleError(err) {
+
+var stylesPipeline = $.lazypipe()
+  .pipe($.sass, config.css.sass)
+  .pipe($.autoprefixer, config.css.autoprefixer);
+
+/*function handleError(err) {
   console.error(err.toString());
   this.emit("end");
-}
+}*/
 
 gulp.task("import-ng2", ["import-ng2-core","import-ng2-facade"]);
 gulp.task("import-ng2-core", function(){
@@ -60,29 +65,32 @@ gulp.task("build-dev-all", ["build-dev-styles", "build-dev-scripts"]);
 
 gulp.task("build-dev-styles",  function () {
   return gulp.src(pathCfg.src.sass, pathCfg.src.baseOpt)
-    .pipe($.sass({style: "expanded"}))
-    .on("error", handleError)
-    .pipe($.autoprefixer("last 1 version"))
+    .pipe(stylesPipeline())
     .pipe(gulp.dest(pathCfg.dest.build));
 });
 
 gulp.task("build-dev-scripts", ["build-dev-transpile-amd", "build-dev-transpile-cjs","jshint"]);
 
+
+var transpileDevPipeline = function(traceurOptions){
+  return (
+    $.lazypipe()
+      .pipe($.sourcemaps.init)
+      .pipe($.rename, {extname: ".js"})
+      .pipe($.traceur, traceurOptions)
+      .pipe($.sourcemaps.write)
+  )();
+};
+
 gulp.task("build-dev-transpile-amd", function () {
   return gulp.src(pathCfg.src.atScript.amd, pathCfg.src.baseOpt)
-    .pipe($.sourcemaps.init())
-    .pipe($.rename({extname: ".js"}))
-    .pipe($.traceur(traceurCfg.dev))
-    .pipe($.sourcemaps.write())
+    .pipe(transpileDevPipeline(traceurCfg.dev))
     .pipe(gulp.dest(pathCfg.dest.build));
 });
 
 gulp.task("build-dev-transpile-cjs", function () {
   return gulp.src(pathCfg.src.atScript.commonjs, pathCfg.src.baseOpt)
-    .pipe($.sourcemaps.init())
-    .pipe($.rename({extname: ".js"}))
-    .pipe($.traceur(traceurCfg.devCommonjs))
-    .pipe($.sourcemaps.write())
+    .pipe(transpileDevPipeline(traceurCfg.devCommonjs))
     .pipe(gulp.dest(pathCfg.dest.build));
 });
 
@@ -112,40 +120,52 @@ gulp.task("build", ["clean"], function(){
 /**
  * Package everything for production (With JS in ES5). [default build task]
  */
-gulp.task("build-prod-es5", ["build-prod-app-es5","build-prod-assets-es5", "build-es5-amd"],function(){
+gulp.task("build-prod-es5", ["build-prod-js-es5","build-prod-assets-es5", "build-es5-amd"],function(){
   gulp.start("build-prod-cleanup");
 });
 
-gulp.task("build-prod-app-es5", function () { // [ "build-require-config"],
+
+var uglyConcatRev = function (name){
+  return (
+    $.lazypipe()
+      .pipe($.filter,"**/*.js")
+      .pipe($.sourcemaps.init, {loadMaps: true})
+      .pipe($.concat, "scripts/"+name+".js")
+      // TODO : it seems there is an issue with sourcemaps in uglify. https://github.com/terinjokes/gulp-uglify/issues/56
+      //.pipe($.uglify({preserveComments: $.uglifySaveLicense}))
+      .pipe($.rev)
+      .pipe($.sourcemaps.write, ".")
+      .pipe(gulp.dest, distPath.base)
+
+      // Memorize filename in manifest
+      .pipe($.rev.manifest)
+      .pipe($.rename, {suffix: "."+name})
+      .pipe(gulp.dest, distPath.rev)
+  )();
+};
+
+gulp.task("build-prod-js-es5", function () {
   var atsFilter = $.filter("**/*.ats");
-  var jsFilter = $.filter("**/*.js");
   var jsAppFilter = $.filter(pathCfg.src.js);
 
-
   return gulp.src(pathCfg.src.appScripts, {base:"."})//pathCfg.src.baseOpt
+
     .pipe(atsFilter)
+    .pipe($.sourcemaps.init())
     .pipe($.rename({extname: ".js"}))
     .pipe($.traceur(traceurCfg.prodEs5))
+    .pipe($.sourcemaps.write())
     .pipe(atsFilter.restore())
-    .pipe(jsFilter)
-    .pipe($.sourcemaps.init({loadMaps: true}))
-    .pipe(jsAppFilter)
-    .pipe($.ngAnnotate())
-    .pipe(jsAppFilter.restore())
     .pipe($.size({title:"javascript"}))
     .pipe($.amdOptimize(modulesCfg.main, {
       baseUrl : pathCfg.src.main,
       configFile : gulp.src(modulesCfg.configFile)
       /*include : modulesCfg.include.prod*/
     }))
-    //.pipe($.concat("scripts/app-es5.js"))
-    //.pipe($.uglify({preserveComments: $.uglifySaveLicense}))
-    .pipe($.rev())
-    .pipe($.sourcemaps.write("."))
-    .pipe(gulp.dest(distPath.base))
-    .pipe($.rev.manifest())
-    .pipe($.rename({suffix: ".app-es5"}))
-    .pipe(gulp.dest(distPath.rev))
+    .pipe(jsAppFilter)
+    .pipe(uglyConcatRev("app-es5"))
+    .pipe(jsAppFilter.restore())
+    .pipe(uglyConcatRev("libraries"))
     .pipe($.size({title:"compressed-javascript"}));
 });
 
@@ -163,40 +183,75 @@ gulp.task("build-prod-app-es6", function () {
 /**
  * Package everything except JS for production.
  */
-gulp.task("build-prod-assets-es5", ["build-prod-html-css-es5","build-prod-images", "build-prod-fonts", "build-prod-misc"]);
+gulp.task("build-prod-assets-es5", ["build-prod-html-css-es5","build-prod-images", "build-prod-fonts", "build-prod-misc", "build-prod-finalize-html"]);
 
-gulp.task("build-prod-html-css-es5", /*["build-prod-app-es5"],*/ function () {
+gulp.task("build-prod-styles",  function () {
+  return gulp.src(pathCfg.src.sass, pathCfg.src.baseOpt)
+    .pipe(stylesPipeline())
+    .pipe(gulp.dest(distPath.tmp));
+});
+
+
+var optimizeCSS = function(dist, rev){
+  return (
+    $.lazypipe()
+      .pipe($.csso)
+      .pipe($.rev)
+      .pipe(gulp.dest, dist)
+
+      .pipe($.rev.manifest) // Memorize name of css
+      .pipe($.rename, {suffix: ".css"})
+      .pipe(gulp.dest, rev)
+  )();
+};
+
+
+
+
+gulp.task("build-prod-html-css-es5", ["build-prod-styles"],  function () {
 
   var htmlFilter = $.filter("*.html");
   var cssFilter = $.filter("**/*.css");
   var assets;
 
-  return gulp.src(pathCfg.src.html, {base:pathCfg.src.main})
-    .pipe(assets = $.useref.assets())
-    .pipe($.debug())
-    .pipe($.rev())
-    .pipe($.rev.manifest())
-    .pipe($.rename({suffix: ".css"}))
-    .pipe(gulp.dest(distPath.rev))
 
-    .pipe(cssFilter)
-    .pipe($.debug())
-    .pipe($.csso())
-    .pipe(cssFilter.restore())
-    .pipe(assets.restore())
-    .pipe($.useref())
+  return gulp.src(pathCfg.src.html, {base:pathCfg.src.main})
+    .pipe(htmlFilter)
+    // Deal with specific build inclusion
     .pipe($.replace(/^<!--start:development-only-->((.*)\n)*<!--end:development-only-->$/m, ""))
     .pipe($.replace(/^<!--start:prod-es5-only--:(((.*)\n)*)<!--end:prod-es5-only-->$/m, "$1"))
-    .pipe($.addSrc(distPath.rev+"/*.json"))
+    .pipe(htmlFilter.restore())
+
+    .pipe(assets = $.useref.assets({// Work with assets of html docs
+      searchPath: [pathCfg.src.main, distPath.tmp+"/main"]
+    }))
+
+    .pipe(cssFilter)
+    .pipe(optimizeCSS(distPath.base, distPath.rev))
+    .pipe(cssFilter.restore())
+
+    .pipe(assets.restore())// End of asset management, HTMLs + Rev files are now in the stream
+    .pipe(htmlFilter)
+    .pipe($.useref()) // replace occurrences of assets that has been combined
+    .pipe(gulp.dest(distPath.base))
+    .pipe(htmlFilter.restore());
+});
+
+
+gulp.task("build-prod-finalize-html", ["build-prod-html-css-es5","build-prod-js-es5", "build-es5-amd"], function () {
+  var htmlFilter = $.filter("*.html");
+
+  return gulp.src([distPath.rev+"/*.json",distPath.base+"/*.html"], {base:distPath.base})
     .pipe($.revCollector())
 
     .pipe(htmlFilter)
+    // HTML minification
     .pipe($.minifyHtml({
       empty: true,
       spare: true,
       quotes: true
     }))
-    .pipe(htmlFilter.restore())
+    // If you want to generate files for a DB import of you HTML, it should be done here.
     .pipe(gulp.dest(distPath.base));
 });
 
@@ -227,7 +282,7 @@ gulp.task("build-prod-misc", function () {
 });
 
 gulp.task("build-prod-cleanup", function (done) {
-  //$.del([distPath.rev], done);
+  $.del([distPath.rev, distPath.tmp], done);
 });
 
 gulp.task("clean", function (done) {
@@ -243,18 +298,16 @@ gulp.task("build-require-config", function(done){
     config: modulesCfg.configFile,
     exclude: ["almond"],
     transitive: true
-  }, function (result){
-    done();
-  });
+  },function(){ done(); } );
 });
 
 
 function minify4Prod(stream, revSuffix){
   return stream
     .pipe($.sourcemaps.init())
+    .pipe($.rename({dirname:"scripts"}))
     .pipe($.rev())
     .pipe($.uglify({preserveComments: $.uglifySaveLicense}))
-    .pipe($.rename({suffix:".min", dirname:"/scripts"}))
     .pipe($.sourcemaps.write("."))
     .pipe(gulp.dest(distPath.base))
     .pipe($.rev.manifest())

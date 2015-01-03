@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "assert": "angular/assert#dist",
-    "amd-optimize" : "git://github.com/mlb6/amd-optimize#master",
+    "amd-optimize" : "^0.4.2",
     "amdefine": ">=0.1.0",
     "bower-requirejs" : "^1.1.2",
     "browser-sync": "^1.8.2",
@@ -64,6 +64,7 @@
     "karma-requirejs": "^0.2.2",
     "karma-sauce-launcher": "^0.2.9",
     "karma-traceur-preprocessor": "^0.4.0",
+    "lazypipe": "^0.2.2",
     "main-bower-files": "^2.0.0",
     "minimist":"^1.1.0",
     "protractor": "^1.4.0",

@@ -75,7 +75,8 @@
         "base": "dist",
         "images": "dist/assets/images",
         "fonts" : "dist/fonts",
-        "rev": "dist/rev"
+        "rev": "dist/.rev",
+        "tmp": "dist/.tmp"
       },
       "coverage" : "build/coverage"
     },
@@ -83,7 +84,10 @@
     "protractorConfig" : "src/test/protractor.conf.js",
     "jshint" : ["src/main/**/*.js", "src/test/unit/**/*.js","scripts/gulp/*.js"]
   },
-
+  "css" :{
+    "autoprefixer" : "last 2 version",
+    "sass" : {"style": "expanded"}
+  },
   "sauce" : {
     "accessKey": "a00d08c6b0f7-6edb-eb64-e6a9-dc872a13",
     "userName":"mlb6",

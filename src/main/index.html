@@ -13,7 +13,7 @@
 
 
   <!-- build:css styles/app.css -->
-  <link rel="stylesheet" href="app/index.scss">
+  <link rel="stylesheet" href="app/index.css">
   <!-- endbuild -->
 
 </head>
@@ -33,13 +33,15 @@
     });
   });
 </script>
-
 <!--end:development-only-->
 
+
 <!--start:prod-es5-only--:
-<script src="almond.js"></script>
+<script src="scripts/almond.js"></script>
+<script src="scripts/libraries.js"></script>
 <script src="scripts/app-es5.js"></script>
-<script src="require.config.js"></script>
+<script src="scripts/require.config.js"></script>
 <!--end:prod-es5-only-->
+
 </body>
 </html>
