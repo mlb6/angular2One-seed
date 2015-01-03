@@ -110,7 +110,7 @@ gulp.task("build", ["clean"], function(){
 
   // Production build is not ready yet. WIP
 
-  gulp.start("build-prod-es5");
+  gulp.start("build-prod");
   //gulp.start("build-prod-es6");
 });
 //gulp.task("build", ["build-prod-es6"]);
@@ -120,22 +120,29 @@ gulp.task("build", ["clean"], function(){
 /**
  * Package everything for production (With JS in ES5). [default build task]
  */
-gulp.task("build-prod-es5", ["build-prod-js-es5","build-prod-assets-es5", "build-es5-amd"],function(){
+gulp.task("build-prod", ["build-prod-js","build-prod-assets", "build-amd"],function(){
   gulp.start("build-prod-cleanup");
 });
 
 
 var uglyConcatRev = function (name){
+  var jsPattern="**/*.js";
   return (
     $.lazypipe()
-      .pipe($.filter,"**/*.js")
+      .pipe($.filter,jsPattern)
+      .pipe($.size, {title:"uncompressed "+name+".js"})
+      .pipe($.size, {gzip:true, title:"uncompressed "+name+".js"})
       .pipe($.sourcemaps.init, {loadMaps: true})
       .pipe($.concat, "scripts/"+name+".js")
       // TODO : it seems there is an issue with sourcemaps in uglify. https://github.com/terinjokes/gulp-uglify/issues/56
-      //.pipe($.uglify({preserveComments: $.uglifySaveLicense}))
+      .pipe(function () {
+        return $.if(config.build.prod.compress, $.uglify({preserveComments: $.uglifySaveLicense}));
+      })
       .pipe($.rev)
       .pipe($.sourcemaps.write, ".")
       .pipe(gulp.dest, distPath.base)
+      .pipe($.filter,jsPattern)
+      .pipe($.size, {gzip:true,showFiles:true, title:"compressed"})
 
       // Memorize filename in manifest
       .pipe($.rev.manifest)
@@ -144,10 +151,9 @@ var uglyConcatRev = function (name){
   )();
 };
 
-gulp.task("build-prod-js-es5", function () {
+gulp.task("build-prod-js", ["build-require-config"], function () {
   var atsFilter = $.filter("**/*.ats");
   var jsAppFilter = $.filter(pathCfg.src.js);
-
   return gulp.src(pathCfg.src.appScripts, {base:"."})//pathCfg.src.baseOpt
 
     .pipe(atsFilter)
@@ -156,17 +162,16 @@ gulp.task("build-prod-js-es5", function () {
     .pipe($.traceur(traceurCfg.prodEs5))
     .pipe($.sourcemaps.write())
     .pipe(atsFilter.restore())
-    .pipe($.size({title:"javascript"}))
     .pipe($.amdOptimize(modulesCfg.main, {
       baseUrl : pathCfg.src.main,
       configFile : gulp.src(modulesCfg.configFile)
       /*include : modulesCfg.include.prod*/
     }))
-    .pipe(jsAppFilter)
-    .pipe(uglyConcatRev("app-es5"))
-    .pipe(jsAppFilter.restore())
-    .pipe(uglyConcatRev("libraries"))
-    .pipe($.size({title:"compressed-javascript"}));
+    .pipe($.addSrc(modulesCfg.configFile))
+    //.pipe(jsAppFilter)
+    .pipe(uglyConcatRev("app"));
+    //.pipe(jsAppFilter.restore())
+    //.pipe(uglyConcatRev("libraries"))
 });
 
 
@@ -183,7 +188,7 @@ gulp.task("build-prod-app-es6", function () {
 /**
  * Package everything except JS for production.
  */
-gulp.task("build-prod-assets-es5", ["build-prod-html-css-es5","build-prod-images", "build-prod-fonts", "build-prod-misc", "build-prod-finalize-html"]);
+gulp.task("build-prod-assets", ["build-prod-html-css","build-prod-images", "build-prod-fonts", "build-prod-misc", "build-prod-finalize-html"]);
 
 gulp.task("build-prod-styles",  function () {
   return gulp.src(pathCfg.src.sass, pathCfg.src.baseOpt)
@@ -195,9 +200,12 @@ gulp.task("build-prod-styles",  function () {
 var optimizeCSS = function(dist, rev){
   return (
     $.lazypipe()
+      .pipe($.size, {showFiles:true, title:"uncompressed"})
+      .pipe($.size, {gzip:true, showFiles:true, title:"uncompressed gzip"})
       .pipe($.csso)
       .pipe($.rev)
       .pipe(gulp.dest, dist)
+      .pipe($.size, {gzip:true, showFiles:true, title:"compressed"})
 
       .pipe($.rev.manifest) // Memorize name of css
       .pipe($.rename, {suffix: ".css"})
@@ -208,7 +216,7 @@ var optimizeCSS = function(dist, rev){
 
 
 
-gulp.task("build-prod-html-css-es5", ["build-prod-styles"],  function () {
+gulp.task("build-prod-html-css", ["build-prod-styles"],  function () {
 
   var htmlFilter = $.filter("*.html");
   var cssFilter = $.filter("**/*.css");
@@ -238,7 +246,7 @@ gulp.task("build-prod-html-css-es5", ["build-prod-styles"],  function () {
 });
 
 
-gulp.task("build-prod-finalize-html", ["build-prod-html-css-es5","build-prod-js-es5", "build-es5-amd"], function () {
+gulp.task("build-prod-finalize-html", ["build-prod-html-css","build-prod-js", "build-amd"], function () {
   var htmlFilter = $.filter("*.html");
 
   return gulp.src([distPath.rev+"/*.json",distPath.base+"/*.html"], {base:distPath.base})
@@ -316,11 +324,7 @@ function minify4Prod(stream, revSuffix){
 }
 
 
-gulp.task("build-es5-amd", ["build-almond-min", "build-require-config-min"]);
-gulp.task("build-require-config-min", ["build-require-config"], function(){
-
-  return minify4Prod(gulp.src(modulesCfg.configFile), ".require.config");
-});
+gulp.task("build-amd", ["build-almond-min", "build-require-config"]);
 
 gulp.task("build-almond-min", function(){
   return minify4Prod(gulp.src("bower_components/almond/almond.js"), ".almond");

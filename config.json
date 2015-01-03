@@ -39,7 +39,11 @@
       "outputLanguage": "es6"
     }
   },
-
+  "build" : {
+    "prod":{
+      "compress" : true
+    }
+  },
   "modules" : {
     "configFile" : "src/main/require.config.js",
     "main" : "app/main",
