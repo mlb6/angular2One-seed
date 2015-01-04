@@ -125,12 +125,14 @@ gulp.task("build-prod", ["build-prod-js","build-prod-assets", "build-amd"],funct
 });
 
 
-var uglyConcatRev = function (name){
+var almondOptimize = function (name){
   var jsPattern="**/*.js";
   return (
     $.lazypipe()
+      .pipe($.addSrc, "bower_components/almond/almond.js")
+      .pipe($.addSrc, modulesCfg.configFile)
       .pipe($.filter,jsPattern)
-      .pipe($.size, {title:"uncompressed "+name+".js"})
+      .pipe($.size, {showFiles:true, title:"uncompressed "+name+".js"})
       .pipe($.size, {gzip:true, title:"uncompressed "+name+".js"})
       .pipe($.sourcemaps.init, {loadMaps: true})
       .pipe($.concat, "scripts/"+name+".js")
@@ -153,25 +155,20 @@ var uglyConcatRev = function (name){
 
 gulp.task("build-prod-js", ["build-require-config"], function () {
   var atsFilter = $.filter("**/*.ats");
-  var jsAppFilter = $.filter(pathCfg.src.js);
+  //var jsAppFilter = $.filter(pathCfg.src.js);
   return gulp.src(pathCfg.src.appScripts, {base:"."})//pathCfg.src.baseOpt
-
     .pipe(atsFilter)
     .pipe($.sourcemaps.init())
     .pipe($.rename({extname: ".js"}))
     .pipe($.traceur(traceurCfg.prodEs5))
     .pipe($.sourcemaps.write())
     .pipe(atsFilter.restore())
+
     .pipe($.amdOptimize(modulesCfg.main, {
       baseUrl : pathCfg.src.main,
       configFile : gulp.src(modulesCfg.configFile)
-      /*include : modulesCfg.include.prod*/
     }))
-    .pipe($.addSrc(modulesCfg.configFile))
-    //.pipe(jsAppFilter)
-    .pipe(uglyConcatRev("app"));
-    //.pipe(jsAppFilter.restore())
-    //.pipe(uglyConcatRev("libraries"))
+    .pipe(almondOptimize("app"));
 });
 
 
@@ -188,7 +185,7 @@ gulp.task("build-prod-app-es6", function () {
 /**
  * Package everything except JS for production.
  */
-gulp.task("build-prod-assets", ["build-prod-html-css","build-prod-images", "build-prod-fonts", "build-prod-misc", "build-prod-finalize-html"]);
+gulp.task("build-prod-assets", ["build-prod-html-css","build-prod-images", "build-prod-fonts", "build-prod-misc", "build-prod-finalize-html", "build-prod-route-templates"]);
 
 gulp.task("build-prod-styles",  function () {
   return gulp.src(pathCfg.src.sass, pathCfg.src.baseOpt)
@@ -245,7 +242,6 @@ gulp.task("build-prod-html-css", ["build-prod-styles"],  function () {
     .pipe(htmlFilter.restore());
 });
 
-
 gulp.task("build-prod-finalize-html", ["build-prod-html-css","build-prod-js", "build-amd"], function () {
   var htmlFilter = $.filter("*.html");
 
@@ -254,13 +250,17 @@ gulp.task("build-prod-finalize-html", ["build-prod-html-css","build-prod-js", "b
 
     .pipe(htmlFilter)
     // HTML minification
-    .pipe($.minifyHtml({
-      empty: true,
-      spare: true,
-      quotes: true
-    }))
-    // If you want to generate files for a DB import of you HTML, it should be done here.
+    .pipe($.minifyHtml(config.html.minify))
+    // If you want to generate files for a DB import of your main HTML page, it should be done here.
     .pipe(gulp.dest(distPath.base));
+});
+
+gulp.task("build-prod-route-templates", function () {
+  return gulp.src(pathCfg.src.templates, {base:pathCfg.src.main})
+    .pipe($.minifyHtml(config.html.minify))
+    // If you want to generate files for a DB import of your HTML pages, it should be done here.
+    .pipe(gulp.dest(distPath.base))
+    .pipe($.size({title:"templates"}));
 });
 
 

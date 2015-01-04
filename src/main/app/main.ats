@@ -1,3 +1,5 @@
+// Traceur is not included here because it is not a dependency of the project.
+// In ES6 build, Traceur will not be included.
 import 'angular';
 import 'hammer'
 import 'angular-material';

@@ -147,12 +147,14 @@ int.assert = function(value) {
   return value == null || typeof value == 'number' && value === Math.floor(value);
 }
 
+/*
 export var RegExp = assert.define('RegExp', function(obj) {
   assert(obj).is(assert.structure({
     single: window.RegExp,
     multiple: window.RegExp
   }));
 });
+*/
 
 export class RegExpWrapper {
   static create(regExpStr):RegExp {

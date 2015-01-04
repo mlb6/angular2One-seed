@@ -68,6 +68,7 @@
       "appScripts" : ["src/main/**/*.js","src/main/**/*.ats"],
 
       "html" : "src/main/*.html",
+      "templates" : "src/main/components/**/*.html",
       "images":"src/main/assets/images/**/*",
       "misc":"src/main/**/*.ico"
     },
@@ -91,6 +92,13 @@
   "css" :{
     "autoprefixer" : "last 2 version",
     "sass" : {"style": "expanded"}
+  },
+  "html" : {
+    "minify": {
+      "empty": true,
+      "spare": true,
+      "quotes": true
+    }
   },
   "sauce" : {
     "accessKey": "a00d08c6b0f7-6edb-eb64-e6a9-dc872a13",
