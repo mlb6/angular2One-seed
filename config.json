@@ -39,11 +39,6 @@
       "outputLanguage": "es6"
     }
   },
-  "build" : {
-    "prod":{
-      "compress" : false
-    }
-  },
   "modules" : {
     "configFile" : "src/main/require.config.js",
     "main" : "app/main",
@@ -88,6 +83,9 @@
     "karmaConfig" : "src/test/karma.conf.js",
     "protractorConfig" : "src/test/protractor.conf.js",
     "jshint" : ["src/main/**/*.js", "src/test/unit/**/*.js","scripts/gulp/*.js"]
+  },
+  "js" : {
+    "minify": true
   },
   "css" :{
     "autoprefixer" : "last 2 version",

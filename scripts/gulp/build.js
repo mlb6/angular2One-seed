@@ -127,18 +127,24 @@ gulp.task("build-prod", ["build-prod-js","build-prod-assets", "build-amd"],funct
 
 var almondOptimize = function (name){
   var jsPattern="**/*.js";
+  var annotateFilter = $.filter("**/router*.es5.js");
   return (
     $.lazypipe()
       .pipe($.addSrc, "bower_components/almond/almond.js")
       .pipe($.addSrc, modulesCfg.configFile)
       .pipe($.filter,jsPattern)
-      .pipe($.size, {showFiles:true, title:"uncompressed "+name+".js"})
+      .pipe($.size, {title:"uncompressed "+name+".js"})
       .pipe($.size, {gzip:true, title:"uncompressed "+name+".js"})
       .pipe($.sourcemaps.init, {loadMaps: true})
+      .pipe(function (){
+        return annotateFilter;
+      })
+      .pipe($.ngAnnotate)
+      .pipe(annotateFilter.restore)
       .pipe($.concat, "scripts/"+name+".js")
       // TODO : it seems there is an issue with sourcemaps in uglify. https://github.com/terinjokes/gulp-uglify/issues/56
       .pipe(function () {
-        return $.if(config.build.prod.compress, $.uglify({preserveComments: $.uglifySaveLicense}));
+        return $.if(config.js.minify, $.uglify({preserveComments: $.uglifySaveLicense}));
       })
       .pipe($.rev)
       .pipe($.sourcemaps.write, ".")
