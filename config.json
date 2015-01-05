@@ -41,7 +41,7 @@
   },
   "build" : {
     "prod":{
-      "compress" : true
+      "compress" : false
     }
   },
   "modules" : {
