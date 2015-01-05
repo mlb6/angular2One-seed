@@ -37,6 +37,15 @@
 
 <!--start:prod-es5-only--:
 <script src="../../node_modules/traceur/bin/traceur-runtime.js"></script>
+
+<script type="text/javascript">
+var module={}; // TODO remove when fixed.
+</script>
+<script src="../../node_modules/rtts-assert/dist/cjs/assert.js">
+ // Only here because angular 2 is using (by mistake) assert library in the production code.
+ // TODO remove when fixed.
+</script>
+
 <script src="scripts/app.js"></script>
 <script type="text/javascript">
   require(['app/main']);
