@@ -4,7 +4,7 @@ import {AppPage} from './appPage';
 describe('The demo app', function () {
 
   beforeEach(function () {
-    browser.get('http://localhost:3000/index.html');
+    browser.get('/index.html');
   });
 
   it('should say hello',function(){
@@ -19,7 +19,7 @@ describe('The demo app', function () {
     var appPage = new AppPage();
     appPage.helloWorldLink.click();
 
-    expect(browser.getCurrentUrl()).toBe("http://localhost:3000/index.html#/hello-world");
+    expect(browser.getCurrentUrl()).toBe(browser.baseUrl +"/index.html#/hello-world");
   })
 
 });

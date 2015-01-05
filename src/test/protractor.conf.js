@@ -3,6 +3,8 @@ require('traceur/bin/traceur-runtime');
 // An example configuration file.
 exports.config = {
 
+  baseUrl:"http://localhost:3000",
+
   // Capabilities to be passed to the webdriver instance.
   capabilities: {
     'browserName': 'chrome'
