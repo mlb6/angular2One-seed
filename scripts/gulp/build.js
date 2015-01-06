@@ -120,7 +120,7 @@ gulp.task("build", ["clean"], function(){
 /**
  * Package everything for production (With JS in ES5). [default build task]
  */
-gulp.task("build-prod", ["build-prod-js","build-prod-assets", "build-amd"],function(){
+gulp.task("build-prod", ["build-prod-js","build-prod-assets", "build-require-config"],function(){
   gulp.start("build-prod-cleanup");
 });
 
@@ -248,7 +248,7 @@ gulp.task("build-prod-html-css", ["build-prod-styles"],  function () {
     .pipe(htmlFilter.restore());
 });
 
-gulp.task("build-prod-finalize-html", ["build-prod-html-css","build-prod-js", "build-amd"], function () {
+gulp.task("build-prod-finalize-html", ["build-prod-html-css","build-prod-js", "build-require-config"], function () {
   var htmlFilter = $.filter("*.html");
 
   return gulp.src([distPath.rev+"/*.json",distPath.base+"/*.html"], {base:distPath.base})
@@ -313,26 +313,5 @@ gulp.task("build-require-config", function(done){
     exclude: ["almond"],
     transitive: true
   },function(){ done(); } );
-});
-
-
-function minify4Prod(stream, revSuffix){
-  return stream
-    .pipe($.sourcemaps.init())
-    .pipe($.rename({dirname:"scripts"}))
-    .pipe($.rev())
-    .pipe($.uglify({preserveComments: $.uglifySaveLicense}))
-    .pipe($.sourcemaps.write("."))
-    .pipe(gulp.dest(distPath.base))
-    .pipe($.rev.manifest())
-    .pipe($.rename({suffix: revSuffix}))
-    .pipe(gulp.dest(distPath.rev));
-}
-
-
-gulp.task("build-amd", ["build-almond-min", "build-require-config"]);
-
-gulp.task("build-almond-min", function(){
-  return minify4Prod(gulp.src("bower_components/almond/almond.js"), ".almond");
 });
 
