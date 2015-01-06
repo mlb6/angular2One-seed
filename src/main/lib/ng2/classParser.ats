@@ -54,30 +54,30 @@ export class ClassParser {
    *
    * @returns {Array<any>} the injected class.
    */
-  getInjectedFactory():Array{
-    return InjectionHelper.getInjectedClass(this.factory, this.name,this.injectedDependencies)
+  getInjectedFactory(generatedInjectionNames:Map):Array{
+    return InjectionHelper.getInjectedClass(this.factory, this.name,this.injectedDependencies, generatedInjectionNames)
   }
 }
 
 
 /**
  * A parser for class that are not directives. They can either be a controller or a service.
- * Controller needs to be named with 'Controller' suffix. //TODO We may need to change this to use an annotation. It may not work with minification.
+ * Controller needs to be named with 'Controller' suffix.
  */
 export class ServiceParser extends ClassParser {
-  constructor(clazz:Function){
-    super(ServiceParser.isController(clazz) ? 'controller' :'factory', clazz.name , ListWrapper.create(), ListWrapper.create(), clazz);
+  constructor(clazz:Function, className:string){
+    super(ServiceParser.isController(className) ? 'controller' :'factory', className , ListWrapper.create(), ListWrapper.create(), clazz);
   }
 
   /**
    * Test if the given class is a controller.
    *
-   * @param clazz the class to check if it is a controller.
+   * @param className the class name to check if it is a controller.
    * @returns {boolean} true if it is a controller. Otherwise false.
    */
-  static isController(clazz:Function):boolean{
+  static isController(className:string):boolean{
     var suffixLength = CONTROLLER_SUFFIX.length;
-    var suffix = clazz.name.substr(clazz.name.length-suffixLength, suffixLength);
+    var suffix = className.substr(className.length-suffixLength, suffixLength);
     return suffix == CONTROLLER_SUFFIX;
   }
 }

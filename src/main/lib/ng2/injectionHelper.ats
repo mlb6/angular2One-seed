@@ -16,12 +16,12 @@ const isLoggingDebug = false;
  * @param isDirective a flag used to insert special behaviour of directives.
  * @returns {Array} an array of injection string followed by the instance of the class.
  */
-export function getInjectedClass(clazz:Function, ngName:string, parametersInjections:List, isDirective:boolean=false):Array{
+export function getInjectedClass(clazz:Function, ngName:string, parametersInjections:List, generatedInjectionNames:Map, isDirective:boolean=false):Array{
 
   // An injectedClassArray is composed by
   // (1) - an array of strings with services names to inject.
   // (2) - a function that will create an instance of The class with injected services.
-  var parametersInjectionNames = injectionsToNames(parametersInjections);
+  var parametersInjectionNames = injectionsToNames(parametersInjections, generatedInjectionNames);
   var injectedClassArray = new Array().concat(parametersInjectionNames);
 
   if(isLoggingDebug){
@@ -52,9 +52,9 @@ export function getInjectedClass(clazz:Function, ngName:string, parametersInject
  * @param parametersInjections  array of injection classes
  * @returns {List} a list of injection string
  */
-function injectionsToNames(parametersInjections):List{
+function injectionsToNames(parametersInjections, generatedNames:Map):List{
   var names = ListWrapper.create();
-  parametersInjections.forEach(injection => names.push(getInjectionName(injection)));
+  parametersInjections.forEach(injection => names.push(getInjectionName(injection, generatedNames)));
   return names;
 }
 
@@ -64,8 +64,10 @@ function injectionsToNames(parametersInjections):List{
  * @param injection injection type
  * @returns {string} injection string
  */
-function getInjectionName(injection:Function):string{
-  return isPresent(injection.ng1Name) ? injection.ng1Name : injection.name;
+export function getInjectionName(injection:Function, generatedNames:Map):string{
+  return isPresent(injection.ng1Name) ? injection.ng1Name : (
+    (injection.name && injection.name.length>0) ?  injection.name : generatedNames.get(injection)
+  );
 }
 
 /**

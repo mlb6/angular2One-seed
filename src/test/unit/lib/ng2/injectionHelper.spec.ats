@@ -66,7 +66,7 @@ describe('InjectionHelper.getInjectedClass', function(){
 
 
     var injections = InjectionHelper.retrieveParametersInjections(TestClass, 'testElement');
-    var result = InjectionHelper.getInjectedClass(TestClass, 'testElement', injections, true);
+    var result = InjectionHelper.getInjectedClass(TestClass, 'testElement', injections, new Map(), true);
 
     expect(result[0]).toBe('$element');
     expect(result[1]).toEqual(jasmine.any(Function));
@@ -93,7 +93,7 @@ describe('InjectionHelper.getInjectedClass', function(){
 
 
     var injections = [NgScope];
-    var result = InjectionHelper.getInjectedClass(TestClass, 'testScope', injections, true);
+    var result = InjectionHelper.getInjectedClass(TestClass, 'testScope', injections,new Map(), true);
 
     expect(result[0]).toBe('$scope');
     expect(result[1]).toEqual(jasmine.any(Function));
@@ -120,7 +120,7 @@ describe('InjectionHelper.getInjectedClass', function(){
 
 
     var injections = InjectionHelper.retrieveParametersInjections(TestClass, 'test');
-    var result = InjectionHelper.getInjectedClass(TestClass, 'test', injections, false);
+    var result = InjectionHelper.getInjectedClass(TestClass, 'test', injections, new Map(),false);
 
     expect(result[0]).toBe('TypeInjection');
     expect(result[1]).toBe('AtInjection');
@@ -132,6 +132,35 @@ describe('InjectionHelper.getInjectedClass', function(){
 });
 
 
+describe('InjectionHelper.getInjectionName', function(){
+  it('should return the name of the class when not minified',function(){
+    class TestClass {};
+
+    expect(InjectionHelper.getInjectionName(TestClass, new Map())).toBe("TestClass");
+  });
+
+  it('should return the name of the class when minified',function(){
+    var anonymousClass1 =  class {};
+    var anonymousClass2 =  class {};
+    var generatedInjectionNames = new Map();
+    generatedInjectionNames.set(anonymousClass1, "GeneratedClass1");
+    generatedInjectionNames.set(anonymousClass2, "GeneratedClass2");
+
+    expect(InjectionHelper.getInjectionName(anonymousClass1,generatedInjectionNames)).toBe("GeneratedClass1");
+    expect(InjectionHelper.getInjectionName(anonymousClass1,generatedInjectionNames)).not.toBe("GeneratedClass2");
+
+    expect(InjectionHelper.getInjectionName(anonymousClass2,generatedInjectionNames)).not.toBe("GeneratedClass1");
+    expect(InjectionHelper.getInjectionName(anonymousClass2,generatedInjectionNames)).toBe("GeneratedClass2");
+  });
+
+  it('should return the ng1 name when using annotation NgOneInject',function(){
+    var ngOneDescriptor =  InjectionHelper.createNgOneDescriptor('ng1Name');
+
+    expect(InjectionHelper.getInjectionName(ngOneDescriptor,new Map())).toBe("ng1Name");
+  });
+
+});
+
 
 describe('InjectionHelper.createNgOneDescriptor', function(){
   it('should create function with an ng1Name property',function(){
@@ -139,5 +168,3 @@ describe('InjectionHelper.createNgOneDescriptor', function(){
     expect(InjectionHelper.createNgOneDescriptor('$log').ng1Name).toBe('$log');
   });
 });
-
-

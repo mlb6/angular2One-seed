@@ -8,8 +8,7 @@ import 'angular-aria';
 import 'angular-mocks';
 import 'router';
 import 'router-directive';
-import {BootstrapService} from 'core/core';
-import {bootstrap as ng2Bootstrap} from 'ng2/ng2One';
+import {Ng2One} from 'ng2/ng2One';
 
 
 //TODO: Use lazy loading for controllers : https://github.com/angular/router/issues/22
@@ -35,14 +34,11 @@ var appModule = angular.module('myApp', [ 'ngFuturisticRouter', 'ngMaterial'])
 
 
 
-var bootstrapService = new BootstrapService(appModule);
-bootstrapService.bootstrappers.push(ng2Bootstrap);
-
-
-bootstrapService.bootstrap(AppController);
-bootstrapService.bootstrap(HelloToasterController);
-bootstrapService.bootstrap(HelloWorldController);
-bootstrapService.bootstrap(HelloCmp);
+var app = new Ng2One(appModule);
+app.bootstrap(AppController, "AppController");
+app.bootstrap(HelloToasterController, "HelloToasterController");
+app.bootstrap(HelloWorldController, "HelloWorldController");
+app.bootstrap(HelloCmp);
 
 
 function dashCase(str) {

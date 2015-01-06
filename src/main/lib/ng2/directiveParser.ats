@@ -27,7 +27,7 @@ class DirectiveParser extends ClassParser{
    * @param otherDependencies directives dependencies (the one included in templates)
    * @param direciveOptions the ng1 directive options that are specific based on the annotation (Component, Decorator, Template)
    */
-  constructor(clazz:Function, selectorPattern:string, componentServices:List, otherDependencies:List, direciveOptions:Object){
+  constructor(clazz:Function, generatedInjectionNames:Map , selectorPattern:string, componentServices:List, otherDependencies:List, direciveOptions:Object){
     var selector = new DirectiveSelector(selectorPattern);
     var runtimeInjection = InjectionHelper.retrieveParametersInjections(clazz, selector.directiveName);
     var dependencies= otherDependencies.concat(runtimeInjection);
@@ -41,7 +41,7 @@ class DirectiveParser extends ClassParser{
     super('directive', selector.directiveName, componentServices, dependencies, function directiveFactory(){
       return angular.extend({
         restrict: selector.directiveRestrict,
-        controller :  InjectionHelper.getInjectedClass(clazz, selector.directiveName, runtimeInjection, true)
+        controller :  InjectionHelper.getInjectedClass(clazz, selector.directiveName, runtimeInjection, generatedInjectionNames, true)
       },direciveOptions);
     });
   }
@@ -52,7 +52,7 @@ class DirectiveParser extends ClassParser{
  */
 export class ComponentParser extends DirectiveParser {
 
-  constructor(clazz:Function, annotation:Component){
+  constructor(clazz:Function, annotation:Component, generatedInjectionNames:Map){
     var template = annotation.template;
     var directiveDependencies = template.directives || ListWrapper.create();
     var directiveOptions = {};
@@ -62,7 +62,7 @@ export class ComponentParser extends DirectiveParser {
     }
     //TODO manage other options
 
-    super(clazz, annotation.selector , annotation.componentServices, directiveDependencies, directiveOptions);
+    super(clazz,generatedInjectionNames, annotation.selector , annotation.componentServices, directiveDependencies, directiveOptions);
   }
 }
 
@@ -77,8 +77,8 @@ export class TemplateParser extends DirectiveParser {
  * A parser for class with @Decorator annotation.
  */
 export class DecoratorParser extends DirectiveParser {
-  constructor(clazz:Function, annotation:Decorator){
-    super(clazz, annotation.selector , ListWrapper.create(), ListWrapper.create(), {});
+  constructor(clazz:Function, annotation:Decorator, generatedInjectionNames:Map){
+    super(clazz, generatedInjectionNames, annotation.selector , ListWrapper.create(), ListWrapper.create(), {});
   }
 }
 
