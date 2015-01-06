@@ -71,6 +71,7 @@
       "build" : "build",
       "buildMain" : "build/main",
       "buildUnit" : "build/test/unit",
+      "buildE2E":"build/test/e2e/**/*.spec.js",
       "dist" : {
         "base": "dist",
         "images": "dist/assets/images",
@@ -82,6 +83,7 @@
     },
     "karmaConfig" : "src/test/karma.conf.js",
     "protractorConfig" : "src/test/protractor.conf.js",
+    "protractorSauceConfig" : "src/test/protractor.sauce.conf.js",
     "jshint" : ["src/main/**/*.js", "src/test/unit/**/*.js","scripts/gulp/*.js"]
   },
   "js" : {

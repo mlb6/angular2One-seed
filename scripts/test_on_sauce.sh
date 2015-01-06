@@ -8,16 +8,16 @@ function killServer {
 
 gulp build
 
-#gulp serve &
-#serverPid=$!
-#trap killServer EXIT
+gulp serve:prod:only &
+serverPid=$!
+trap killServer EXIT
 
 gulp test-sauce &
 
-#protractor protractor.travis.conf.js &
+gulp protractor-sauce &
 
 wait %1 # test-sauce
 gulp publish-coverage
 
-#wait %2 # protractor
+wait %2 # protractor
 exit 0
