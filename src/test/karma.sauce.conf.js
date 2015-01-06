@@ -10,7 +10,7 @@ module.exports = function(options) {
   }
 
   options.sauceLabs = {
-    testName: sauceConfig.testName,
+    testName: sauceConfig.testName+" Unit",
     startConnect: true
   };
   options.customLaunchers = sauceConfig.launchers;

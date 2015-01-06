@@ -13,11 +13,11 @@ serverPid=$!
 trap killServer EXIT
 
 gulp test-sauce &
-
 gulp protractor-sauce &
 
-wait %1 # test-sauce
+wait %2 # test-sauce
 gulp publish-coverage
 
-wait %2 # protractor
+wait %3 # protractor
+echo "Exiting sauce tests"
 exit 0
