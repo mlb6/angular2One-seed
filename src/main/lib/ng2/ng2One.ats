@@ -140,7 +140,6 @@ export class Ng2One {
     }
     injectionName="Ng2OneGeneratedService"+(this.injCount++);
     this.generatedInjectionNames.set(clazz, injectionName);
-    console.log("injectionName="+injectionName);
     return injectionName;
   }
 
