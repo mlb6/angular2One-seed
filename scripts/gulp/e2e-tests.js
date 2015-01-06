@@ -7,10 +7,8 @@ var browserSync = require("browser-sync");
 
 var pathCfg  = require("./../../config").path;
 
-
-gulp.task("protractor", ["serve:dev:only", "protractor:only"]);
+gulp.task("protractor:dev", ["serve:dev:only", "protractor:only"]);
 gulp.task("protractor:prod", ["serve:prod:only", "protractor:only"]);
-
 
 gulp.task("protractor:only", ["webdriver-update"], function (done) {
   var testFiles = [
