@@ -6,7 +6,7 @@ function killServer {
   kill $serverPid
 }
 
-gulp build-dev
+gulp build
 
 #gulp serve &
 #serverPid=$!
