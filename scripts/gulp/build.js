@@ -19,49 +19,39 @@ if(argv.file){
   pathCfg.src.atScript.commonjs = argv.file;
 }
 
+gulp.task("clean", function (done) {
+  $.del([pathCfg.dest.build, distPath.base], done);
+});
 
-var stylesPipeline = $.lazypipe()
-  .pipe($.sass, config.css.sass)
-  .pipe($.autoprefixer, config.css.autoprefixer);
+gulp.task("build", ["clean"], function(){
+  gulp.start("build:dev");
+  gulp.start("build:prod");
+  //gulp.start("build:prod-es6");
+});
+//gulp.task("build", ["build-prod-es6"]);
 
-/*function handleError(err) {
-  console.error(err.toString());
-  this.emit("end");
-}*/
 
-gulp.task("import-ng2", ["import-ng2-core","import-ng2-facade"]);
-gulp.task("import-ng2-core", function(){
-  return gulp.src(["node_modules/angular/modules/core/src/compiler/selector.js"], { base: "./node_modules/angular/modules/core/src/" })
-    .pipe($.rename({extname: ".ats"}))
-    .pipe($.replace(/import (.*) from '(.*)';/g, "import $1 from 'angular2/$2';"))
-    .pipe(gulp.dest("src/main/lib/angular2/core"));
-}) ;
+gulp.task("build:dev", ["build-dev-js", "build-dev-styles"]);
 
-gulp.task("import-ng2-facade", function(){
-  return gulp.src(["node_modules/angular/modules/facade/src/lang.es6",
-                    "node_modules/angular/modules/facade/src/collection.es6"], { base: "./node_modules/angular/modules/facade/src/" })
-    .pipe($.rename({extname: ".ats"}))
-    .pipe($.replace(/(import {assert} from 'rtts_assert\/rtts_assert';)/g, ""))
-    .pipe($.replace(/(window.assert = assert;)/g, "// $1"))
-    .pipe($.replace(/import (.*) from '(.*)';/g, "import $1 from 'angular2/$2';"))
-    .pipe(gulp.dest("src/main/lib/angular2/facade"));
-}) ;
+
+gulp.task("build:prod", ["build-prod-js","build-prod-assets", "require-config"],function(){
+  gulp.start("build-prod-cleanup");
+});
+
 
 /*************************************************************/
 /********************* DEVELOPMENT BUILD *********************/
 /************************************************************/
-
 /**
  * Build in temporary build directory:
  * - scripts from atScript in JS ES5
  * - styles from sass in css
  * Other resources are exposed to the Browser Sync server by the main src folder
  */
-gulp.task("build-dev", ["clean"],function(){
-  gulp.start("build-dev-all");
-});
 
-gulp.task("build-dev-all", ["build-dev-styles", "build-dev-scripts"]);
+var stylesPipeline = $.lazypipe()
+  .pipe($.sass, config.css.sass)
+  .pipe($.autoprefixer, config.css.autoprefixer);
 
 gulp.task("build-dev-styles",  function () {
   return gulp.src(pathCfg.src.sass, pathCfg.src.baseOpt)
@@ -69,7 +59,7 @@ gulp.task("build-dev-styles",  function () {
     .pipe(gulp.dest(pathCfg.dest.build));
 });
 
-gulp.task("build-dev-scripts", ["build-dev-transpile-amd", "build-dev-transpile-cjs","jshint"]);
+gulp.task("build-dev-js", ["build-dev-transpile-amd", "build-dev-transpile-cjs","jshint"]);
 
 
 var transpileDevPipeline = function(traceurOptions){
@@ -95,46 +85,17 @@ gulp.task("build-dev-transpile-cjs", function () {
 });
 
 
-gulp.task("jshint", function () {
-  return gulp.src(pathCfg.jshint, pathCfg.src.baseOpt)
-    .pipe($.jshint())
-    .pipe($.jshint.reporter("jshint-stylish"));
-});
+
 
 /************************************************************/
 /********************* PRODUCTION BUILD *********************/
 /************************************************************/
 
-gulp.task("build", ["clean"], function(){
-  //gulp.start("build-dev");
 
-  // Production build is not ready yet. WIP
-
-  gulp.start("build-prod");
-  //gulp.start("build-prod-es6");
-});
-//gulp.task("build", ["build-prod-es6"]);
-
-
-
-/**
- * Package everything for production (With JS in ES5). [default build task]
- */
-gulp.task("build-prod", ["build-prod-js","build-prod-assets", "build-require-config"],function(){
-  gulp.start("build-prod-cleanup");
-});
-
-
-var almondOptimize = function (name){
-  var jsPattern="**/*.js";
+var optimizeJS = function (name){
   var annotateFilter = $.filter("**/router*.es5.js");
   return (
     $.lazypipe()
-      .pipe($.addSrc, "bower_components/almond/almond.js")
-      .pipe($.addSrc, modulesCfg.configFile)
-      .pipe($.filter,jsPattern)
-      .pipe($.size, {title:"uncompressed "+name+".js"})
-      .pipe($.size, {gzip:true, title:"uncompressed "+name+".js"})
       .pipe($.sourcemaps.init, {loadMaps: true})
       .pipe(function (){
         return annotateFilter;
@@ -149,6 +110,23 @@ var almondOptimize = function (name){
       .pipe($.rev)
       .pipe($.sourcemaps.write, ".")
       .pipe(gulp.dest, distPath.base)
+  )();
+};
+
+
+var optimize4Almond = function (name){
+  var jsPattern="**/*.js";
+  return (
+    $.lazypipe()
+      .pipe($.addSrc, "bower_components/almond/almond.js")
+      .pipe($.addSrc, modulesCfg.configFile)
+
+      .pipe($.filter,jsPattern)
+      .pipe($.size, {title:"uncompressed "+name+".js"})
+      .pipe($.size, {gzip:true, title:"uncompressed "+name+".js"})
+
+      .pipe(optimizeJS, name )
+
       .pipe($.filter,jsPattern)
       .pipe($.size, {gzip:true,showFiles:true, title:"compressed"})
 
@@ -159,7 +137,10 @@ var almondOptimize = function (name){
   )();
 };
 
-gulp.task("build-prod-js", ["build-require-config"], function () {
+
+
+
+gulp.task("build-prod-js", ["require-config"], function () {
   var atsFilter = $.filter("**/*.ats");
   //var jsAppFilter = $.filter(pathCfg.src.js);
   return gulp.src(pathCfg.src.appScripts, {base:"."})//pathCfg.src.baseOpt
@@ -174,7 +155,7 @@ gulp.task("build-prod-js", ["build-require-config"], function () {
       baseUrl : pathCfg.src.main,
       configFile : gulp.src(modulesCfg.configFile)
     }))
-    .pipe(almondOptimize("app"));
+    .pipe(optimize4Almond("app"));
 });
 
 
@@ -248,7 +229,7 @@ gulp.task("build-prod-html-css", ["build-prod-styles"],  function () {
     .pipe(htmlFilter.restore());
 });
 
-gulp.task("build-prod-finalize-html", ["build-prod-html-css","build-prod-js", "build-require-config"], function () {
+gulp.task("build-prod-finalize-html", ["build-prod-html-css", "build-prod-js", "require-config"], function () {
   var htmlFilter = $.filter("*.html");
 
   return gulp.src([distPath.rev+"/*.json",distPath.base+"/*.html"], {base:distPath.base})
@@ -299,14 +280,9 @@ gulp.task("build-prod-cleanup", function (done) {
   $.del([distPath.rev, distPath.tmp], done);
 });
 
-gulp.task("clean", function (done) {
-  $.del([pathCfg.dest.build, distPath.base], done);
-});
 
 
-
-
-gulp.task("build-require-config", function(done){
+gulp.task("require-config", function(done){
   $.bowerRequirejs({
     baseUrl: pathCfg.src.main,
     config: modulesCfg.configFile,
@@ -315,3 +291,28 @@ gulp.task("build-require-config", function(done){
   },function(){ done(); } );
 });
 
+
+gulp.task("jshint", function () {
+  return gulp.src(pathCfg.jshint, pathCfg.src.baseOpt)
+    .pipe($.jshint())
+    .pipe($.jshint.reporter("jshint-stylish"));
+});
+
+
+gulp.task("import-ng2", ["import-ng2-core","import-ng2-facade"]);
+gulp.task("import-ng2-core", function(){
+  return gulp.src(["node_modules/angular/modules/core/src/compiler/selector.js"], { base: "./node_modules/angular/modules/core/src/" })
+    .pipe($.rename({extname: ".ats"}))
+    .pipe($.replace(/import (.*) from '(.*)';/g, "import $1 from 'angular2/$2';"))
+    .pipe(gulp.dest("src/main/lib/angular2/core"));
+}) ;
+
+gulp.task("import-ng2-facade", function(){
+  return gulp.src(["node_modules/angular/modules/facade/src/lang.es6",
+    "node_modules/angular/modules/facade/src/collection.es6"], { base: "./node_modules/angular/modules/facade/src/" })
+    .pipe($.rename({extname: ".ats"}))
+    .pipe($.replace(/(import {assert} from 'rtts_assert\/rtts_assert';)/g, ""))
+    .pipe($.replace(/(window.assert = assert;)/g, "// $1"))
+    .pipe($.replace(/import (.*) from '(.*)';/g, "import $1 from 'angular2/$2';"))
+    .pipe(gulp.dest("src/main/lib/angular2/facade"));
+}) ;

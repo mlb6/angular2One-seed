@@ -48,7 +48,7 @@ function browserSyncInit(baseDir, files, browser, notify) {
 gulp.task("serve", ["watch-dev"], function () {
   gulp.start("serve:dev");
 });
-gulp.task("serve:prod", ["build"], function () {
+gulp.task("serve:prod", ["build:prod"], function () {
   gulp.start("serve:prod:only");
 });
 
