@@ -30,7 +30,7 @@ gulp.task("test-sauce",  function(done){
     singleRun : true
   },function(){
     done();
-    // Process does not end certainly while using travis config.
+    // Process does not end while using travis config.
     // Certainly because of this issue : https://github.com/gulpjs/gulp/issues/167
     // TODO: Change this when issue is closed.
     process.exit(0);
