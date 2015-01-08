@@ -66,7 +66,7 @@ describe('EmptyParser', function() {
 });
 
 describe('ClassAnnotationsParser.getFirst', function() {
-  it(' method should return the first annotation of the given type', function () {
+  it('should return the first annotation of the given type', function () {
 
     class Annotation1 {};
     class Annotation2 {
@@ -85,6 +85,32 @@ describe('ClassAnnotationsParser.getFirst', function() {
 
     var parser = new ClassAnnotationsParser(Service);
     expect(parser.getFirst(Annotation2).id).toBe("1");
+
+  });
+});
+
+describe('ClassAnnotationsParser.getAnnotations', function() {
+  it('should return the first annotation of the given type', function () {
+
+    class Annotation1 {};
+    class Annotation2 {
+      id:string;
+      constructor(id){
+        this.id=id;
+      }
+    };
+
+    @Annotation1
+    @Annotation2('1')
+    @Annotation2('2')
+    class Service {
+      constructor( dep1, dep2){ }
+    }
+    var parser = new ClassAnnotationsParser(Service);
+    var annotations = parser.getAnnotations(Annotation2);
+
+    expect(annotations[0].id).toBe("1");
+    expect(annotations[1].id).toBe("2");
 
   });
 });
