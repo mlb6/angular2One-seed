@@ -1,0 +1,83 @@
+import {InjectNgOne, Inject, NgElement, NgScope, Directive, Component,Decorator,Template, TemplateConfig} from "ng2/types";
+
+
+describe("InjectNgOne", function() {
+  it("should keep injection token", function () {
+    @InjectNgOne("ngInjection") class Test {}
+
+    expect(Test.annotations[0].token).toBe("ngInjection");
+
+  });
+});
+
+describe("Inject", function() {
+  it("should keep injection function token", function () {
+    class Injected{}
+    @Inject(Injected) class Test {}
+
+    expect(Test.annotations[0].token).toBe(Injected);
+
+  });
+});
+
+
+describe("NgElement", function() {
+  it("should wrap a dom element", function () {
+
+    var dummyElement = document.createElement('DIV');
+    var element = new NgElement(dummyElement);
+
+    expect(element.domElement).toBe(dummyElement);
+
+  });
+  it("should have a ng1Name", function () {
+    expect(NgElement.ng1Name).toBe("$element");
+  });
+});
+
+describe("NgScope", function() {
+
+  it("should have a ng1Name", function () {
+    expect(NgScope.ng1Name).toBe("$scope");
+  });
+});
+
+describe("Directive", function() {
+
+  it("should have a selector", function () {
+    var directive = new Directive({selector:"select"});
+    expect(directive.selector).toBe("select");
+  });
+});
+
+
+describe("Component", function() {
+
+  it("should have a template", function () {
+    var directive = new Component({template:new TemplateConfig({inline:"template"})});
+    expect(directive.template.inline).toBe("template");
+  });
+  it("should have componentServices", function () {
+    class Type1{};
+    class Type2{};
+    var directive = new Component({componentServices:[Type1,Type2]});
+    expect(directive.componentServices).toEqual([Type1,Type2]);
+  });
+
+});
+
+describe("Template", function() {
+
+  it("should have a selector", function () {
+    var directive = new Template({selector:"select"});
+    expect(directive.selector).toBe("select");
+  });
+});
+
+describe("Decorator", function() {
+
+  it("should have a selector", function () {
+    var directive = new Decorator({selector:"select"});
+    expect(directive.selector).toBe("select");
+  });
+});
