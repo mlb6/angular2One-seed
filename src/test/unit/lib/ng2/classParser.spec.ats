@@ -1,0 +1,90 @@
+import {ClassParser, ServiceParser , EmptyParser, ClassAnnotationsParser} from 'ng2/classParser';
+import {InjectNgOne, Inject, NgElement, NgScope} from 'ng2/types';
+
+function expectSetEquals(set:Set,expectedSet:Set){
+  expectedSet.forEach((expectedValue) => expect(set.has(expectedValue)).toBe(true));
+  expect(set.size).toBe(expectedSet.size);
+}
+
+describe('ServiceParser.getAllDependencies', function() {
+  it('should list all dependencies', function () {
+
+    class Dependency1 {};
+    class Dependency2 {};
+    class Service {
+      constructor(dep1:Dependency1, dep2: Dependency2){ }
+    }
+    var serviceParser = new ServiceParser(Service);
+    expectSetEquals(serviceParser.getAllDependencies(), new Set([Dependency1, Dependency2]));
+
+  });
+});
+
+describe('ServiceParser.type', function() {
+  it('should be a controller when name ends by Controller', function () {
+    class MyController { }
+    var serviceParser = new ServiceParser(MyController, "MyController");
+    expect(serviceParser.type).toBe("controller");
+  });
+
+  it('should be a factory when name does not end by Controller', function () {
+    class MyService { }
+    var serviceParser = new ServiceParser(MyService);
+    expect(serviceParser.type).toBe("factory");
+  });
+
+  it('should be a factory if no name is provided', function () {
+    class MyController { }
+    var serviceParser = new ServiceParser(MyController);
+    expect(serviceParser.type).toBe("factory");
+  });
+});
+
+describe('ServiceParser.getInjectedFactory', function() {
+
+  it('should return an array of dependencies followed by the factory function ', function () {
+    class Dependency1 {};
+    class Dependency2 {};
+    class Service {
+      constructor(dep1:Dependency1, dep2: Dependency2){ }
+    }
+    var serviceParser = new ServiceParser(Service);
+    var injectedFactory = serviceParser.getInjectedFactory(new Map());
+    var factory = injectedFactory.pop();
+    expect(injectedFactory).toEqual(["Dependency1", "Dependency2"]);
+    expect(typeof factory).toBe("function");
+
+  });
+});
+
+describe('EmptyParser', function() {
+  it('should have empty type and no dependencies', function () {
+    var emptyParser = new EmptyParser(function(){});
+    expect(emptyParser.type).toBe("");
+    expectSetEquals(emptyParser.getAllDependencies(), new Set());
+  });
+});
+
+describe('ClassAnnotationsParser.getFirst', function() {
+  it(' method should return the first annotation of the given type', function () {
+
+    class Annotation1 {};
+    class Annotation2 {
+      id:string;
+      constructor(id){
+        this.id=id;
+      }
+    };
+
+    @Annotation1
+    @Annotation2('1')
+    @Annotation2('2')
+    class Service {
+      constructor( dep1, dep2){ }
+    }
+
+    var parser = new ClassAnnotationsParser(Service);
+    expect(parser.getFirst(Annotation2).id).toBe("1");
+
+  });
+});
