@@ -20,6 +20,7 @@ When I discovered the angular 2 [code example](https://github.com/angular/angula
 * [atScript](https://docs.google.com/document/d/11YUzC-1d0V1-Q3V0fQ7KSit97HnZoKVygDxpWzEYW0U) transpilation with [traceur](https://github.com/google/traceur-compiler)
 * [New Angular Router](https://github.com/angular/router#the-new-angular-router)
 * [Angular Material Design](https://material.angularjs.org) 
+* ~~[Dgeni](https://github.com/angular/dgeni#dgeni---documentation-generator-) for documentation generation. ~~ (coming soon, WIP)
 * [AMD modules](http://requirejs.org/docs/whyamd.html) with requireJS
 * [Gulp](http://gulpjs.com/) to build everything fast.
 * [BrowserSync](http://www.browsersync.io/) synchronize your browser with your code.
@@ -27,7 +28,6 @@ When I discovered the angular 2 [code example](https://github.com/angular/angula
 * [amd-optimize](https://github.com/scalableminds/amd-optimize#amd-optimize-) and [almond](https://github.com/jrburke/almond#almond) for AMD module in a single file (prod).
 * [Protractor](http://angular.github.io/protractor/) and [Karma](http://karma-runner.github.io/) for e2e and unit tests
 
-### 
 
 
 ### Continuous Integration
