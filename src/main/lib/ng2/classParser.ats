@@ -65,8 +65,8 @@ export class ClassParser {
  * Controller needs to be named with 'Controller' suffix.
  */
 export class ServiceParser extends ClassParser {
-  constructor(clazz:Function, className:string){
-    super(ServiceParser.isController(className) ? 'controller' :'factory', className , ListWrapper.create(), ListWrapper.create(), clazz);
+  constructor(clazz:Function, className:string=""){
+    super(ServiceParser.isController(className) ? "controller" :"factory", className , ListWrapper.create(), ListWrapper.create(), clazz);
   }
 
   /**
@@ -76,9 +76,8 @@ export class ServiceParser extends ClassParser {
    * @returns {boolean} true if it is a controller. Otherwise false.
    */
   static isController(className:string):boolean{
-    var suffixLength = CONTROLLER_SUFFIX.length;
-    var suffix = className.substr(className.length-suffixLength, suffixLength);
-    return suffix == CONTROLLER_SUFFIX;
+    var suffixLength = CONTROLLER_SUFFIX.length, suffixPos = className.length-suffixLength;
+    return (suffixPos>=0) ?  CONTROLLER_SUFFIX===className.substr(suffixPos, suffixLength) : false;
   }
 }
 
