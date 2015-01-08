@@ -48,7 +48,7 @@ module.exports = function(config) {
     },
 
     preprocessors: {
-      '**/*.js': ['coverage']
+      '*/!(angular2)/**/*.js': ['coverage']
     },
 
     //logLevel:config.LOG_DEBUG,
