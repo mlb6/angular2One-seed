@@ -25,9 +25,9 @@ class DirectiveParser extends ClassParser{
    * @param selectorPattern the CSS selector used to create directive.
    * @param componentServices only used as dependencies.
    * @param otherDependencies directives dependencies (the one included in templates)
-   * @param direciveOptions the ng1 directive options that are specific based on the annotation (Component, Decorator, Template)
+   * @param directiveOptions the ng1 directive options that are specific based on the annotation (Component, Decorator, Template)
    */
-  constructor(clazz:Function, generatedInjectionNames:Map , selectorPattern:string, componentServices:List, otherDependencies:List, direciveOptions:Object){
+  constructor(clazz:Function, generatedInjectionNames:Map , selectorPattern:string, componentServices:List, otherDependencies:List, directiveOptions:Object){
     var selector = new DirectiveSelector(selectorPattern);
     var runtimeInjection = InjectionHelper.retrieveParametersInjections(clazz, selector.directiveName);
     var dependencies= otherDependencies.concat(runtimeInjection);
@@ -39,10 +39,12 @@ class DirectiveParser extends ClassParser{
     runtimeInjection.push(InjectionHelper.createNgOneDescriptor('$scope'));
 
     super('directive', selector.directiveName, componentServices, dependencies, function directiveFactory(){
-      return angular.extend({
+
+
+      return Object.assign({
         restrict: selector.directiveRestrict,
         controller :  InjectionHelper.getInjectedClass(clazz, selector.directiveName, runtimeInjection, generatedInjectionNames, true)
-      },direciveOptions);
+      },directiveOptions);
     });
   }
 }
@@ -60,6 +62,11 @@ export class ComponentParser extends DirectiveParser {
     if(isPresent(template.inline)){
       directiveOptions.template =template.inline;
     }
+    if(!isPresent(annotation.componentServices)){
+      annotation.componentServices = [];
+    }
+
+
     //TODO manage other options
 
     super(clazz,generatedInjectionNames, annotation.selector , annotation.componentServices, directiveDependencies, directiveOptions);
@@ -103,7 +110,7 @@ export class DirectiveSelector {
       this.directiveName=camelCase(this.selector.attrs[0]);
       this.directiveRestrict='A';
     }else if(this.selector.classNames.length>0){
-      this.directiveName=camelCase(this.classNames.attrs[0]);
+      this.directiveName=camelCase(this.selector.classNames.pop());
       this.directiveRestrict='C';
     }else if(isPresent(this.selector.element)){
       this.directiveName=camelCase(this.selector.element);
