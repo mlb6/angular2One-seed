@@ -1,0 +1,102 @@
+import {Ng2One, Component, Decorator,InjectNgOne} from 'ng2/ng2';
+
+
+class AngularModuleMock {
+  controllerMap;
+  directiveMap;
+  factoryMap;
+  constructor(){
+    this.controllerMap = new Map();
+    this.directiveMap= new Map();
+    this.factoryMap= new Map();
+  }
+
+  controller(name, injectedFactory) {
+    this.controllerMap.has(name) ?
+      this.controllerMap.set(name, this.controllerMap.get(name)+1) :
+      this.controllerMap.set(name, 1);
+  };
+  directive(name, injectedFactory) {
+    this.directiveMap.has(name) ?
+      this.directiveMap.set(name, this.directiveMap.get(name)+1) :
+      this.directiveMap.set(name, 1);
+  };
+  factory(name, injectedFactory) {
+    this.factoryMap.has(name) ?
+      this.factoryMap.set(name, this.factoryMap.get(name)+1) :
+      this.factoryMap.set(name, 1);
+  };
+};
+
+var annonymousClass = class{};
+class Dependency1 {};
+class Dependency2 {};
+class MyService {
+  constructor(dep1:Dependency1, dep2: Dependency2, dep3:annonymousClass, @InjectNgOne('log') log){ }
+}
+class MyController {
+  constructor(service:MyService, dep1:Dependency1){ }
+}
+
+@Component({selector:"my-directive-component"})
+class MyComponent {
+  constructor(service:MyService){ }
+}
+
+@Decorator({selector:"[my-directive-decorator]"})
+class MyDecorator {
+  constructor(service:MyService){ }
+}
+
+describe('Ng2One.bootstrap', function() {
+
+  var appModule;
+
+  beforeEach(function() {
+    appModule = new AngularModuleMock();
+
+  });
+
+  it('should bootstrap the class and all its dependencies', function () {
+
+    var app = new Ng2One(appModule);
+    app.bootstrap(MyController, "MyController");
+    app.bootstrap(MyComponent);
+    app.bootstrap(MyDecorator);
+    expect(appModule.controllerMap.get("MyController")>0).toBe(true);
+    expect(appModule.factoryMap.get("MyService")>0).toBe(true);
+    expect(appModule.factoryMap.get("Dependency1")>0).toBe(true);
+    expect(appModule.factoryMap.get("Dependency2")>0).toBe(true);
+    expect(appModule.directiveMap.get("myDirectiveComponent")>0).toBe(true);
+    expect(appModule.directiveMap.get("myDirectiveDecorator")>0).toBe(true);
+    expect(appModule.factoryMap.get("_Ng2One_0")>0).toBe(true);
+
+  });
+
+  xit('should bootstrap the class and all its dependencies only once', function () {
+
+    var app = new Ng2One(appModule);
+    app.bootstrap(MyController, "MyController");
+    app.bootstrap(MyComponent);
+    app.bootstrap(MyDecorator);
+    expect(appModule.controllerMap.get("MyController")).toBe(1);
+    expect(appModule.factoryMap.get("MyService")).toBe(1);
+    expect(appModule.factoryMap.get("Dependency1")).toBe(1);
+    expect(appModule.factoryMap.get("Dependency2")).toBe(1);
+    expect(appModule.directiveMap.get("myDirectiveComponent")).toBe(1);
+    expect(appModule.directiveMap.get("myDirectiveDecorator")).toBe(1);
+    expect(appModule.factoryMap.get("_Ng2One_0")).toBe(1);
+
+  });
+
+  it('should fail safely when there is problem to parse service', function () {
+    class BadService {
+      constructor(foo){}
+    }
+
+    var app = new Ng2One(appModule);
+    app.bootstrap(BadService, "BadService");
+    expect(appModule.factoryMap.get("BadService")>0).toBe(false);
+  });
+
+});
