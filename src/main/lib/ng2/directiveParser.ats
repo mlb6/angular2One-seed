@@ -55,7 +55,7 @@ class DirectiveParser extends ClassParser{
 export class ComponentParser extends DirectiveParser {
 
   constructor(clazz:Function, annotation:Component, generatedInjectionNames:Map){
-    var template = annotation.template;
+    var template = annotation.template || {};
     var directiveDependencies = template.directives || ListWrapper.create();
     var directiveOptions = {};
 

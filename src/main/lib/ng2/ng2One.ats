@@ -32,15 +32,6 @@ const isLoggingDebug = false; // for dev purpose
  * @param appModule the application module returned by angular.module('myApp')
  * @param clazz the class to bootstrap
  */
-export function bootstrap(appModule:Object, className:string, clazz:Function){
-  new Ng2One(appModule).bootstrap(className,clazz);
-  //window.ng2OneAppModule=appModule;
-}
-
-
-/**
- * Ng2One registers a class and its dependencies to angular 1.3.x
- */
 export class Ng2One {
   appModule:Object;
   generatedInjectionNames:Map;
@@ -55,7 +46,6 @@ export class Ng2One {
     this.appModule=appModule;
     this.generatedInjectionNames= new Map();
     this.injCount=0;
-
   }
 
 
@@ -138,7 +128,7 @@ export class Ng2One {
     if(injectionName){
       return injectionName;
     }
-    injectionName="Ng2OneGeneratedService"+(this.injCount++);
+    injectionName="_Ng2One_"+(this.injCount++);
     this.generatedInjectionNames.set(clazz, injectionName);
     return injectionName;
   }

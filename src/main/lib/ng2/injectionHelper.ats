@@ -64,9 +64,9 @@ function injectionsToNames(parametersInjections, generatedNames:Map):List{
  * @param injection injection type
  * @returns {string} injection string
  */
-export function getInjectionName(injection:Function, generatedNames:Map):string{
+export function getInjectionName(injection:Function, generatedNames:Map):any{
   return isPresent(injection.ng1Name) ? injection.ng1Name : (
-    (injection.name && injection.name.length>0) ?  injection.name : generatedNames.get(injection)
+    (injection.name.length>0) ?  injection.name : generatedNames.get(injection)
   );
 }
 
