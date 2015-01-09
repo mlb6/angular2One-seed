@@ -1,0 +1,111 @@
+import {ComponentParser, TemplateParser, DecoratorParser, DirectiveSelector} from "ng2/directiveParser";
+import {Component,Decorator, Template,TemplateConfig, NgElement} from 'ng2/types';
+
+
+function expectSetEquals(set:Set,expectedSet:Set){
+  expectedSet.forEach((expectedValue) => expect(set.has(expectedValue)).toBe(true));
+  expect(set.size).toBe(expectedSet.size);
+}
+
+describe("DirectiveParser", function() {
+  it("type should be 'directive' ", function () {
+    var annotation = new Decorator({selector:"a"})
+    class TestDecorator {  }
+
+    var directiveParser = new DecoratorParser(TestDecorator, annotation, new Map());
+    expect(directiveParser.type).toBe("directive");
+  });
+
+  it("name should be based on selector ", function () {
+    var annotation = new Decorator({selector:"a"})
+    class TestDecorator {  }
+
+    var directiveParser = new DecoratorParser(TestDecorator, annotation, new Map());
+    expect(directiveParser.name).toBe("a");
+    expect(directiveParser.name).not.toBe("TestDecorator");
+  });
+
+});
+
+describe("DirectiveParser.getAllDependencies", function() {
+  it("should not have NgElement as a dependency", function () {
+    var annotation = new Decorator({selector:"a"})
+    class OtherDependency {};
+    class TestDecorator {
+      constructor(element:NgElement, other:OtherDependency){}
+    };
+
+    var directiveParser = new DecoratorParser(TestDecorator, annotation, new Map());
+    expectSetEquals(directiveParser.getAllDependencies(),new Set([OtherDependency]));
+  });
+
+});
+
+
+function getDirectiveConfiguration(directiveParser, generatedNames){
+  var injectedFactory = directiveParser.getInjectedFactory(generatedNames);
+  var directiveFactory = injectedFactory.pop();
+  return directiveFactory();
+}
+
+describe("DirectiveParser.getInjectedFactory", function() {
+  it('should return a directiveFactory having restrict option based on selector', function () {
+
+    var generatedNames = new Map();
+    var annotation = new Decorator({selector:"a"})
+    class TestDecorator {  }
+    var directiveParser = new DecoratorParser(TestDecorator, annotation, generatedNames);
+
+    var directiveObject = getDirectiveConfiguration(directiveParser, generatedNames);
+    expect(directiveObject.restrict).toBe("E")
+
+  });
+});
+
+
+describe("ComponentParser.getInjectedFactory", function() {
+  it('should return a directiveFactory having template option ', function () {
+
+    var generatedNames = new Map();
+    var annotation = new Component({
+      selector:"a",
+      template: new TemplateConfig({
+        inline:"myTemplate"
+      })
+    })
+    class TestComponent {  }
+    var directiveParser = new ComponentParser(TestComponent, annotation, generatedNames);
+
+    var directiveObject = getDirectiveConfiguration(directiveParser, generatedNames);
+    expect(directiveObject.template).toBe("myTemplate");
+
+  });
+});
+
+
+describe("DirectiveSelector.directiveName", function() {
+  it('should be the camelCase name of the attribute targeted by CSS ', function () {
+    expect(new DirectiveSelector('a[my-test-directive]').directiveName).toBe("myTestDirective")
+  });
+  it('should be the camelCase name of the class targeted by CSS ', function () {
+    expect(new DirectiveSelector('a.my-test-directive]').directiveName).toBe("myTestDirective")
+  });
+  it('should be the camelCase name of the element targeted by CSS ', function () {
+    expect(new DirectiveSelector('my-test-directive').directiveName).toBe("myTestDirective")
+  });
+});
+
+
+describe("DirectiveSelector.directiveRestrict", function() {
+  it('should be A when CSS selector targets an attribute', function () {
+    expect(new DirectiveSelector('a[my-test-directive]').directiveRestrict).toBe("A")
+  });
+  it('should be C when CSS selector targets a class', function () {
+    expect(new DirectiveSelector('a.my-test-directive]').directiveRestrict).toBe("C")
+  });
+  it('should be E when CSS selector targets an elemment', function () {
+    expect(new DirectiveSelector('my-test-directive').directiveRestrict).toBe("E")
+  });
+});
+
+
