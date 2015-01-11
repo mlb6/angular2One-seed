@@ -20,7 +20,7 @@ When I discovered the angular 2 [code example](https://github.com/angular/angula
 * [atScript](https://docs.google.com/document/d/11YUzC-1d0V1-Q3V0fQ7KSit97HnZoKVygDxpWzEYW0U) transpilation with [traceur](https://github.com/google/traceur-compiler)
 * [New Angular Router](https://github.com/angular/router#the-new-angular-router)
 * [Angular Material Design](https://material.angularjs.org) 
-* ~~[Dgeni](https://github.com/angular/dgeni#dgeni---documentation-generator-) for documentation generation. ~~ (coming soon, WIP)
+* [~~Dgeni~~](https://github.com/angular/dgeni#dgeni---documentation-generator-) ~~for documentation generation.~~ (coming soon, WIP)
 * [AMD modules](http://requirejs.org/docs/whyamd.html) with requireJS
 * [Gulp](http://gulpjs.com/) to build everything fast.
 * [BrowserSync](http://www.browsersync.io/) synchronize your browser with your code.
@@ -67,3 +67,8 @@ or
 
 ## Contributing
 [Contact me](https://twitter.com/mart1lb) if you want to contribute.
+
+Here are some contribution ideas:
+
+* Integration of [angular-widget](https://github.com/wix/angular-widget#angular-widget--) to have lazy-loading of application per page.
+* Create a WebComponent example, and do the necessary to make it easy.
