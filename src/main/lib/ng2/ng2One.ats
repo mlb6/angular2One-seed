@@ -36,6 +36,7 @@ export class Ng2One {
   appModule:Object;
   generatedInjectionNames:Map;
   injCount:number;
+  internalRegistry:Set;
 
   /**
    * Create a Ng2One instance
@@ -46,6 +47,7 @@ export class Ng2One {
     this.appModule=appModule;
     this.generatedInjectionNames= new Map();
     this.injCount=0;
+    this.internalRegistry=new Set();
   }
 
 
@@ -80,7 +82,10 @@ export class Ng2One {
       if(isLoggingDebug){
         console.debug('module.'+classParser.type+'("'+classParser.name+'",'+classParser.getInjectedFactory()+");");
       }
-      this.appModule[classParser.type](classParser.name, classParser.getInjectedFactory(this.generatedInjectionNames));
+      if(!this.internalRegistry.has(classParser.name)){
+        this.appModule[classParser.type](classParser.name, classParser.getInjectedFactory(this.generatedInjectionNames));
+        this.internalRegistry.add(classParser.name)
+      }
     }
   }
 

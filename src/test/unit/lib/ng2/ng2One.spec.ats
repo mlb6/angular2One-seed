@@ -54,7 +54,6 @@ describe('Ng2One.bootstrap', function() {
 
   beforeEach(function() {
     appModule = new AngularModuleMock();
-
   });
 
   it('should bootstrap the class and all its dependencies', function () {
@@ -73,7 +72,7 @@ describe('Ng2One.bootstrap', function() {
 
   });
 
-  xit('should bootstrap the class and all its dependencies only once', function () {
+  it('should bootstrap the class and all its dependencies only once', function () {
 
     var app = new Ng2One(appModule);
     app.bootstrap(MyController, "MyController");

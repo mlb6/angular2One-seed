@@ -8,10 +8,9 @@ import 'angular-aria';
 import 'angular-mocks';
 import 'router';
 import 'router-directive';
-import {Ng2One} from 'ng2/ng2One';
+import {Ng2One} from 'ng2/ng2';
 
 
-//TODO: Use lazy loading for controllers : https://github.com/angular/router/issues/22
 import AppController from 'components/app/AppController';
 import HelloToasterController from 'components/hello-toaster/HelloToasterController';
 import {HelloCmp, HelloWorldController} from 'components/hello-world/HelloWorldController';
@@ -46,7 +45,9 @@ function dashCase(str) {
     return '-' + $1.toLowerCase();
   });
 }
+angular.element(document).ready(function() {
+  angular.bootstrap(document, ['myApp']);
+});
 
 
-return angular.bootstrap(document, ['myApp']);
 
