@@ -89,7 +89,7 @@ describe('Ng2One.bootstrap', function() {
 
   });
 
-  it('should fail safely when there is problem to parse service', function () {
+  xit('should fail safely when there is problem to parse service', function () {
     class BadService {
       constructor(foo){}
     }
