@@ -67,8 +67,3 @@ or
 
 ## Contributing
 [Contact me](https://twitter.com/mart1lb) if you want to contribute.
-
-Here are some contribution ideas:
-
-* Integration of [angular-widget](https://github.com/wix/angular-widget#angular-widget--) to have lazy-loading of application per page.
-* Create a WebComponent example, and do the necessary to make it easy.
